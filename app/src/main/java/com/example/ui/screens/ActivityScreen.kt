@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
@@ -60,23 +61,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.data.model.QuestionType
+import com.example.data.repository.LearnerReportSnapshot
+import com.example.ui.components.PdfReportDialog
 import com.example.ui.components.QuestionInteractionBody
 import com.example.ui.theme.CoralError
 import com.example.ui.theme.LeafSecondary
 import com.example.ui.theme.SkyPrimary
 import com.example.ui.theme.SunGold
 import com.example.ui.viewmodel.ActivitySessionState
+import com.example.ui.viewmodel.AppUiState
 import com.example.ui.viewmodel.MainViewModel
 
 @Composable
 fun ActivityScreen(
   session: ActivitySessionState,
+  uiState: AppUiState,
   ttsAutoRead: Boolean,
   onSpeakText: (String) -> Unit,
   onStopSpeech: () -> Unit,
+  onLoadAllSnapshots: suspend () -> List<LearnerReportSnapshot>,
   viewModel: MainViewModel,
 ) {
   var showExitConfirm by remember { mutableStateOf(false) }
+  var showPdfReportDialog by remember { mutableStateOf(false) }
 
   BackHandler {
     if (session.isCompleted) {
@@ -98,11 +105,19 @@ fun ActivityScreen(
     LessonSummaryView(
       session = session,
       onRetryMissed = { viewModel.startRetryMissedInSession() },
+      onSendReport = { showPdfReportDialog = true },
       onDone = {
         onStopSpeech()
         viewModel.exitSession()
       },
     )
+    if (showPdfReportDialog) {
+      PdfReportDialog(
+        uiState = uiState,
+        onLoadAllSnapshots = onLoadAllSnapshots,
+        onDismiss = { showPdfReportDialog = false },
+      )
+    }
     return
   }
 
@@ -116,6 +131,10 @@ fun ActivityScreen(
         onSubmit = {
           onStopSpeech()
           viewModel.submitAnswer()
+        },
+        onRetrySecondAttempt = {
+          onStopSpeech()
+          viewModel.retrySecondAttempt()
         },
         onNext = {
           onStopSpeech()
@@ -197,22 +216,40 @@ fun ActivityScreen(
               .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp),
           ) {
-            // Activity Type Tag + Read Aloud Button
+            // Activity Type Tag + Attempt Badge + Read Aloud Button
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically,
             ) {
-              Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(8.dp),
+              Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
               ) {
-                Text(
-                  text = friendlyTypeLabel(curQ.type, curQ.isPictureMode),
-                  style = MaterialTheme.typography.labelMedium,
-                  color = MaterialTheme.colorScheme.onPrimaryContainer,
-                  modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                )
+                Surface(
+                  color = MaterialTheme.colorScheme.primaryContainer,
+                  shape = RoundedCornerShape(8.dp),
+                ) {
+                  Text(
+                    text = friendlyTypeLabel(curQ.type, curQ.isPictureMode),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                  )
+                }
+                Surface(
+                  color = if (session.attemptNumber == 2) SunGold.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant,
+                  shape = RoundedCornerShape(8.dp),
+                  modifier = Modifier.testTag("attempt_badge"),
+                ) {
+                  Text(
+                    text = if (session.attemptNumber == 2) "Try 2 of 2" else "Try 1 of 2",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (session.attemptNumber == 2) SunGold else MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                  )
+                }
               }
               Surface(
                 onClick = { onSpeakText(curQ.prompt) },
@@ -266,25 +303,67 @@ fun ActivityScreen(
   }
 
   if (showExitConfirm) {
+    val resumeItemNumber = (if (session.feedback != null && !session.isRetryPending) {
+      session.currentIndex + 2
+    } else {
+      session.currentIndex + 1
+    }).coerceAtMost(session.questions.size.coerceAtLeast(1))
+
     AlertDialog(
       onDismissRequest = { showExitConfirm = false },
-      title = { Text("Leave Activity?") },
-      text = { Text("Your progress in this current quiz session won't be saved yet.") },
+      title = { Text("Pause & Save Activity?") },
+      text = {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text(
+            if (session.lessonId != null) {
+              "You answered ${session.answeredCount} of ${session.questions.size} items. Your progress is saved so you can return at Item #$resumeItemNumber — or send your progress report now even before finishing."
+            } else {
+              "You answered ${session.answeredCount} of ${session.questions.size} items. Your XP and accuracy so far are saved, and you can send your progress report now."
+            }
+          )
+          OutlinedButton(
+            onClick = {
+              showExitConfirm = false
+              onStopSpeech()
+              viewModel.saveAndPauseSession(closeSession = false)
+              showPdfReportDialog = true
+            },
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(48.dp)
+              .testTag("exit_send_report_button"),
+          ) {
+            Icon(Icons.Rounded.PictureAsPdf, contentDescription = null, tint = SkyPrimary, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Send Progress Report (PDF)", color = SkyPrimary, fontWeight = FontWeight.SemiBold)
+          }
+        }
+      },
       confirmButton = {
         Button(
           onClick = {
             showExitConfirm = false
             onStopSpeech()
-            viewModel.exitSession()
+            viewModel.saveAndPauseSession(closeSession = true)
           },
-          colors = ButtonDefaults.buttonColors(containerColor = CoralError),
+          colors = ButtonDefaults.buttonColors(containerColor = SkyPrimary),
+          modifier = Modifier.testTag("exit_save_button"),
         ) {
-          Text("Leave")
+          Text("Save & Exit")
         }
       },
       dismissButton = {
         TextButton(onClick = { showExitConfirm = false }) { Text("Keep Learning") }
       },
+    )
+  }
+
+  if (showPdfReportDialog) {
+    PdfReportDialog(
+      uiState = uiState,
+      onLoadAllSnapshots = onLoadAllSnapshots,
+      onDismiss = { showPdfReportDialog = false },
     )
   }
 }
@@ -294,6 +373,7 @@ private fun ActivityBottomBar(
   session: ActivitySessionState,
   canSubmit: Boolean,
   onSubmit: () -> Unit,
+  onRetrySecondAttempt: () -> Unit,
   onNext: () -> Unit,
 ) {
   val fb = session.feedback
@@ -318,7 +398,11 @@ private fun ActivityBottomBar(
           enter = fadeIn() + slideInVertically { it / 2 },
         ) {
           if (fb != null) {
-            val fbColor = if (fb.isCorrect) LeafSecondary else CoralError
+            val fbColor = when {
+              fb.isCorrect -> LeafSecondary
+              session.isRetryPending -> SunGold
+              else -> CoralError
+            }
             Surface(
               shape = RoundedCornerShape(16.dp),
               color = fbColor.copy(alpha = 0.13f),
@@ -364,7 +448,29 @@ private fun ActivityBottomBar(
               .height(52.dp)
               .testTag("check_answer_button"),
           ) {
-            Text("Check Answer", style = MaterialTheme.typography.titleSmall)
+            Text(
+              text = if (session.attemptNumber == 2) "Check Answer (2nd Try)" else "Check Answer",
+              style = MaterialTheme.typography.titleSmall,
+            )
+          }
+        } else if (session.isRetryPending) {
+          Button(
+            onClick = onRetrySecondAttempt,
+            colors = ButtonDefaults.buttonColors(
+              containerColor = SunGold,
+              contentColor = Color(0xFF422006),
+            ),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(52.dp)
+              .testTag("try_again_button"),
+          ) {
+            Text(
+              text = "Try Again (1 Try Left)",
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.Bold,
+            )
           }
         } else {
           val isLast = session.currentIndex >= session.questions.lastIndex
@@ -394,6 +500,7 @@ private fun ActivityBottomBar(
 private fun LessonSummaryView(
   session: ActivitySessionState,
   onRetryMissed: () -> Unit,
+  onSendReport: () -> Unit,
   onDone: () -> Unit,
 ) {
   val total = session.questions.size.coerceAtLeast(1)
@@ -421,9 +528,11 @@ private fun LessonSummaryView(
         modifier = Modifier.widthIn(max = 500.dp).fillMaxWidth(),
       ) {
         Column(
-          modifier = Modifier.padding(24.dp),
+          modifier = Modifier
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
           horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = Arrangement.spacedBy(14.dp),
+          verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
           Surface(
             color = SunGold.copy(alpha = 0.16f),
@@ -476,6 +585,23 @@ private fun LessonSummaryView(
             SummaryStatBox("XP Earned", "+${session.sessionXp}", SunGold, Modifier.weight(1f))
           }
 
+          Button(
+            onClick = onSendReport,
+            colors = ButtonDefaults.buttonColors(
+              containerColor = LeafSecondary,
+              contentColor = Color.White,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(50.dp)
+              .testTag("completion_send_report_button"),
+          ) {
+            Icon(Icons.Rounded.PictureAsPdf, contentDescription = null, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Send Progress Report (PDF)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+          }
+
           if (session.missedInSession.isNotEmpty()) {
             OutlinedButton(
               onClick = onRetryMissed,
@@ -491,12 +617,12 @@ private fun LessonSummaryView(
             }
           }
 
-          Button(
+          OutlinedButton(
             onClick = onDone,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
               .fillMaxWidth()
-              .height(52.dp)
+              .height(48.dp)
               .testTag("summary_done_button"),
           ) {
             Text("Back to Science Hub", style = MaterialTheme.typography.titleSmall)

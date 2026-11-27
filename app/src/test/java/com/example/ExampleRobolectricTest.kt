@@ -1,24 +1,71 @@
 package com.example
 
 import android.content.Context
+import android.os.Looper
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.local.AppDatabase
 import com.example.data.local.CurriculumLoader
+import com.example.data.model.QuestionType
+import com.example.data.model.ScienceLesson
+import com.example.data.model.ScienceQuestion
 import com.example.data.repository.ScienceRepository
+import com.example.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class ExampleRobolectricTest {
+
+  private fun sampleLesson(id: String = "test_lesson_1", questionCount: Int = 5): ScienceLesson {
+    val questions = (1..questionCount).map { idx ->
+      ScienceQuestion(
+        id = "${id}_q$idx",
+        lessonId = id,
+        type = QuestionType.MULTIPLE_CHOICE,
+        prompt = "Question $idx prompt",
+        answerText = "Option B",
+        explanation = "Option B is correct.",
+        options = listOf("Option A", "Option B", "Option C", "Option D"),
+        correctIndex = 1,
+      )
+    }
+    return ScienceLesson(
+      id = id,
+      order = 1,
+      title = "Matter & States",
+      grade = 5,
+      term = 1,
+      contentTopic = "States of Matter",
+      weeks = "Weeks 1-2",
+      questions = questions,
+    )
+  }
+
+  private suspend fun waitUntil(timeoutMs: Long = 5000L, predicate: () -> Boolean) {
+    withTimeout(timeoutMs) {
+      while (!predicate()) {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        delay(15)
+      }
+    }
+  }
 
   @Test
   fun `read string from context`() {
@@ -97,6 +144,291 @@ class ExampleRobolectricTest {
       repo.switchLearner(learner2Id)
       assertEquals(70, repo.observeLearnerStats().first().totalXp)
       assertEquals(2, repo.observeLessonProgress().first()["lesson_b"]?.stars)
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `activity logs and aral report snapshots record per learner progress accurately`() = runTest {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val lessons = CurriculumLoader(context).loadLessons()
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      repo.ensureInitialStats()
+      val learner = repo.observeLearnerStats().first()
+      val firstLesson = lessons.first { it.grade == 5 }
+
+      repo.recordQuestionResult(learner.id, firstLesson.questions.first().id, firstLesson.id, isCorrect = false)
+      repo.completeActivitySession(
+        learnerId = learner.id,
+        lessonId = firstLesson.id,
+        correctCount = 17,
+        totalCount = firstLesson.questions.size,
+        xpEarned = 180,
+        activityTitle = firstLesson.title,
+        activityCategory = "Lesson (Term ${firstLesson.term})",
+        gradeLevel = firstLesson.grade,
+      )
+      repo.completeActivitySession(
+        learnerId = learner.id,
+        lessonId = null,
+        correctCount = 8,
+        totalCount = 10,
+        xpEarned = 90,
+        activityTitle = "Daily Science Sprint",
+        activityCategory = "Challenge",
+        gradeLevel = 5,
+      )
+
+      val updatedLearner = repo.observeLearnerStats().first()
+      val progressMap = repo.observeLessonProgress().first()
+      val mistakes = repo.observeMistakes().first()
+      val logs = repo.observeActivityLogs().first()
+      assertEquals(2, logs.size)
+      assertEquals("Daily Science Sprint", logs.first().activityTitle)
+      assertEquals(firstLesson.title, logs.last().activityTitle)
+
+      val snapshots = repo.getAllLearnersReportSnapshots()
+      assertEquals(1, snapshots.size)
+      assertEquals(2, snapshots.first().activityLogs.size)
+      assertEquals(1, snapshots.first().mistakes.size)
+
+      val badges = repo.computeBadges(lessons, progressMap, updatedLearner)
+      com.example.util.PdfReportScope.entries.forEach { scope ->
+        val req = com.example.util.SciencePdfReportRequest(
+          scope = scope,
+          activeLearner = updatedLearner,
+          allLessons = lessons,
+          progressMap = progressMap,
+          mistakes = mistakes,
+          activityLogs = logs,
+          badges = badges,
+          allLearnerSnapshots = snapshots,
+        )
+        val fileName = com.example.util.ScienceReportPdfGenerator.suggestedFileName(req)
+        assertTrue(fileName.startsWith("ARAL_Science_Report_"))
+        assertTrue(fileName.endsWith(".pdf"))
+      }
+
+      // Reset clears activity logs as well
+      repo.resetProgress()
+      assertTrue(repo.observeActivityLogs().first().isEmpty())
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `two attempt rule allows one retry and records difficulty only after second wrong try`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      val vm = MainViewModel(repo)
+      val collector = launch(Dispatchers.Unconfined) { vm.uiState.collect {} }
+      waitUntil { !vm.uiState.value.isLoading }
+
+      val lesson = sampleLesson(questionCount = 3)
+      vm.startLesson(lesson)
+
+      // Item 1: Wrong on 1st try -> triggers retry prompt without advancing or recording mistake
+      vm.onSelectSingle(0)
+      vm.submitAnswer()
+      val afterTry1Wrong = vm.sessionState.value!!
+      assertTrue(afterTry1Wrong.isRetryPending)
+      assertEquals(0, afterTry1Wrong.answeredCount)
+      assertTrue(afterTry1Wrong.missedInSession.isEmpty())
+      assertTrue(afterTry1Wrong.feedback?.headline?.contains("Try Again") == true)
+      assertTrue(vm.uiState.value.mistakes.isEmpty())
+
+      // Retry -> Attempt 2
+      vm.retrySecondAttempt()
+      val onTry2 = vm.sessionState.value!!
+      assertEquals(2, onTry2.attemptNumber)
+      assertFalse(onTry2.isRetryPending)
+      assertNull(onTry2.feedback)
+
+      // Item 1: Wrong again on 2nd try -> records mistake & proceeds
+      vm.onSelectSingle(2)
+      vm.submitAnswer()
+      val afterTry2Wrong = vm.sessionState.value!!
+      assertFalse(afterTry2Wrong.isRetryPending)
+      assertEquals(1, afterTry2Wrong.answeredCount)
+      assertEquals(0, afterTry2Wrong.correctCount)
+      assertEquals(listOf("test_lesson_1_q1"), afterTry2Wrong.missedInSession.map { it.id })
+      waitUntil { vm.uiState.value.mistakes.any { it.questionId == "test_lesson_1_q1" } }
+
+      // Item 2: Wrong on 1st try, then CORRECT on 2nd try -> recovers without recording mistake
+      vm.nextQuestion()
+      vm.onSelectSingle(3)
+      vm.submitAnswer()
+      assertTrue(vm.sessionState.value!!.isRetryPending)
+
+      vm.retrySecondAttempt()
+      vm.onSelectSingle(1)
+      vm.submitAnswer()
+      val afterTry2Correct = vm.sessionState.value!!
+      assertFalse(afterTry2Correct.isRetryPending)
+      assertEquals(2, afterTry2Correct.answeredCount)
+      assertEquals(1, afterTry2Correct.correctCount)
+      assertEquals(1, afterTry2Correct.missedInSession.size)
+      assertFalse(vm.uiState.value.mistakes.any { it.questionId == "test_lesson_1_q2" })
+
+      collector.cancel()
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `unfinished activity pauses at next unanswered item per learner and resumes cleanly`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      val vm = MainViewModel(repo)
+      val collector = launch(Dispatchers.Unconfined) { vm.uiState.collect {} }
+      waitUntil { !vm.uiState.value.isLoading }
+
+      val lesson = sampleLesson(id = "g5_t1_w1", questionCount = 4)
+      val learner1Id = vm.uiState.value.stats.id
+
+      // Learner 1 answers 2 out of 4 questions and exits mid-activity
+      vm.startLesson(lesson)
+      vm.onSelectSingle(1) // Q1 correct (+10 XP)
+      vm.submitAnswer()
+      vm.nextQuestion()
+
+      vm.onSelectSingle(1) // Q2 correct (+10 XP)
+      vm.submitAnswer()
+      vm.exitSession()
+
+      assertNull(vm.sessionState.value)
+      waitUntil {
+        vm.uiState.value.inProgressMap[lesson.id]?.currentIndex == 2 &&
+          vm.uiState.value.stats.totalXp == 20
+      }
+      val savedForL1 = vm.uiState.value.inProgressMap[lesson.id]!!
+      assertEquals(2, savedForL1.currentIndex)
+      assertEquals(2, savedForL1.answeredCount)
+      assertEquals(2, savedForL1.correctCount)
+      assertEquals(20, vm.uiState.value.stats.totalXp)
+      assertEquals(2, vm.uiState.value.stats.totalAnswered)
+
+      // Add Learner 2 and verify Learner 2 has empty inProgressMap
+      vm.addLearner("Pedro", grade = 5, avatarIndex = 1)
+      waitUntil {
+        vm.uiState.value.stats.learnerName == "Pedro" &&
+          vm.uiState.value.inProgressMap.isEmpty()
+      }
+      assertTrue(vm.uiState.value.inProgressMap.isEmpty())
+      assertEquals(0, vm.uiState.value.stats.totalXp)
+
+      // Switch back to Learner 1 and return to the lesson -> directed to item #3 (index 2)
+      vm.switchLearner(learner1Id)
+      waitUntil {
+        vm.uiState.value.stats.id == learner1Id &&
+          vm.uiState.value.inProgressMap.containsKey(lesson.id)
+      }
+      assertNotNull(vm.uiState.value.inProgressMap[lesson.id])
+
+      vm.startLesson(lesson)
+      val resumed = vm.sessionState.value!!
+      assertEquals(2, resumed.currentIndex)
+      assertEquals(2, resumed.answeredCount)
+      assertEquals("g5_t1_w1_q3", resumed.currentQuestion?.id)
+
+      // Finish remaining 2 questions and check no XP / answered double-counting
+      vm.onSelectSingle(1) // Q3 correct (+15 XP with 3-streak)
+      vm.submitAnswer()
+      vm.nextQuestion()
+      vm.onSelectSingle(1) // Q4 correct (+15 XP with 4-streak)
+      vm.submitAnswer()
+      vm.nextQuestion()
+
+      assertTrue(vm.sessionState.value!!.isCompleted)
+      waitUntil {
+        !vm.uiState.value.inProgressMap.containsKey(lesson.id) &&
+          vm.uiState.value.progressMap.containsKey(lesson.id) &&
+          vm.uiState.value.stats.totalXp == 50
+      }
+      assertEquals(4, vm.uiState.value.stats.totalAnswered)
+      assertEquals(4, vm.uiState.value.stats.totalCorrect)
+      assertEquals(50, vm.uiState.value.stats.totalXp)
+
+      collector.cancel()
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `grade 6 term 3 week 10 questions 4 and 5 match and sort accurately`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      val vm = MainViewModel(repo)
+      val collector = launch(Dispatchers.Unconfined) { vm.uiState.collect {} }
+      waitUntil { !vm.uiState.value.isLoading }
+
+      val week10 = vm.uiState.value.allLessons.first {
+        it.grade == 6 && it.term == 3 && it.weeks == "Week 10"
+      }
+      val q4 = week10.questions[3]
+      val q5 = week10.questions[4]
+      assertEquals("g6_t3_l51_q04", q4.id)
+      assertEquals("g6_t3_l51_q05", q5.id)
+      assertEquals(mapOf(0 to 0, 1 to 1, 2 to 2), q4.correctPairs)
+      assertEquals(listOf(0, 1, 2), q5.cards.map { it.bucketIndex })
+
+      // Answer Q4 correctly using MainViewModel matching flow
+      val q4OnlyLesson = week10.copy(questions = listOf(q4, q5))
+      vm.startLesson(q4OnlyLesson)
+
+      // Try 1: intentionally mismatch 0->1, 1->0, 2->2
+      vm.onSelectMatchingLeft(0)
+      vm.onSelectMatchingRight(1)
+      vm.onSelectMatchingLeft(1)
+      vm.onSelectMatchingRight(0)
+      vm.onSelectMatchingLeft(2)
+      vm.onSelectMatchingRight(2)
+      vm.submitAnswer()
+      assertTrue(vm.sessionState.value!!.isRetryPending)
+
+      // Try 2: also mismatch to verify readable pair feedback (not 1-A, 2-B, 3-C)
+      vm.retrySecondAttempt()
+      vm.onSelectMatchingLeft(0)
+      vm.onSelectMatchingRight(2)
+      vm.onSelectMatchingLeft(1)
+      vm.onSelectMatchingRight(1)
+      vm.onSelectMatchingLeft(2)
+      vm.onSelectMatchingRight(0)
+      vm.submitAnswer()
+      val wrongDetail = vm.sessionState.value!!.feedback!!.detail
+      assertFalse(wrongDetail.contains("1-A"))
+      assertTrue(wrongDetail.contains("Earth spinning on its axis (Rotation) → Cycle of day and night"))
+
+      // Advance to Q5 and verify each card maps to its distinct bucket (0, 1, 2)
+      vm.nextQuestion()
+      q5.cards.indices.forEach { cardIdx ->
+        vm.onSelectSortCard(cardIdx)
+        vm.onAssignCardToBucket(q5.cards[cardIdx].bucketIndex)
+      }
+      vm.submitAnswer()
+      assertTrue(vm.sessionState.value!!.feedback!!.isCorrect)
+
+      collector.cancel()
     } finally {
       db.close()
     }

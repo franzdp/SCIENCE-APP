@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
@@ -41,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.local.LessonInProgressEntity
 import com.example.data.local.LessonProgressEntity
 import com.example.data.model.ScienceLesson
 import com.example.ui.components.LearnerAvatarBadge
@@ -79,10 +82,12 @@ fun LearnScreen(
   onStartLesson: (ScienceLesson) -> Unit,
   onOpenLearnerSwitcher: () -> Unit,
   onOpenAddLearner: () -> Unit,
+  onOpenProgressReport: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val gradeLessons = uiState.allLessons.filter { it.grade == uiState.selectedGrade }
-  val nextLesson = gradeLessons.firstOrNull { (uiState.progressMap[it.id]?.stars ?: 0) == 0 }
+  val nextLesson = gradeLessons.firstOrNull { uiState.inProgressMap.containsKey(it.id) }
+    ?: gradeLessons.firstOrNull { (uiState.progressMap[it.id]?.stars ?: 0) == 0 }
     ?: gradeLessons.firstOrNull()
 
   Box(
@@ -223,8 +228,34 @@ fun LearnScreen(
         }
       }
 
+      // Quick Progress Report Key on Front / Main Page
+      item {
+        OutlinedButton(
+          onClick = onOpenProgressReport,
+          shape = RoundedCornerShape(16.dp),
+          border = BorderStroke(1.2.dp, LeafSecondary.copy(alpha = 0.45f)),
+          colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = LeafSecondary.copy(alpha = 0.08f),
+            contentColor = LeafSecondary,
+          ),
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .testTag("main_progress_report_button"),
+        ) {
+          Icon(Icons.Rounded.PictureAsPdf, contentDescription = null, modifier = Modifier.size(18.dp))
+          Spacer(Modifier.width(8.dp))
+          Text(
+            text = "Progress Report (PDF) — Send or Export",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+          )
+        }
+      }
+
       // Hero Continue Learning Card
       if (nextLesson != null) {
+        val heroInProg = uiState.inProgressMap[nextLesson.id]
         item {
           Surface(
             shape = RoundedCornerShape(24.dp),
@@ -279,7 +310,7 @@ fun LearnScreen(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                      text = "RECOMMENDED NEXT",
+                      text = if (heroInProg != null) "RESUME ACTIVITY" else "RECOMMENDED NEXT",
                       style = MaterialTheme.typography.labelSmall,
                       color = Color.White,
                       fontWeight = FontWeight.Bold,
@@ -295,7 +326,11 @@ fun LearnScreen(
                     overflow = TextOverflow.Ellipsis,
                   )
                   Text(
-                    text = "Grade ${nextLesson.grade} • Term ${nextLesson.term} • ${nextLesson.weeks}",
+                    text = if (heroInProg != null) {
+                      "Paused at Item #${heroInProg.currentIndex + 1} of ${nextLesson.questions.size}"
+                    } else {
+                      "Grade ${nextLesson.grade} • Term ${nextLesson.term} • ${nextLesson.weeks}"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.9f),
                   )
@@ -311,7 +346,10 @@ fun LearnScreen(
                 ) {
                   Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
                   Spacer(Modifier.width(6.dp))
-                  Text("Start Lesson", fontWeight = FontWeight.Bold)
+                  Text(
+                    text = if (heroInProg != null) "Resume (Item #${heroInProg.currentIndex + 1})" else "Start Lesson",
+                    fontWeight = FontWeight.Bold,
+                  )
                 }
               }
             }
@@ -444,6 +482,7 @@ fun LearnScreen(
           LessonModuleCard(
             lesson = lesson,
             progress = uiState.progressMap[lesson.id],
+            inProgress = uiState.inProgressMap[lesson.id],
             onClick = { onStartLesson(lesson) },
           )
         }
@@ -479,6 +518,7 @@ private fun StatPill(
 private fun LessonModuleCard(
   lesson: ScienceLesson,
   progress: LessonProgressEntity?,
+  inProgress: LessonInProgressEntity?,
   onClick: () -> Unit,
 ) {
   val stars = progress?.stars ?: 0
@@ -494,7 +534,11 @@ private fun LessonModuleCard(
     tonalElevation = 1.dp,
     border = BorderStroke(
       1.dp,
-      if (stars > 0) termColor.copy(alpha = 0.45f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.45f),
+      when {
+        inProgress != null -> SunGold.copy(alpha = 0.65f)
+        stars > 0 -> termColor.copy(alpha = 0.45f)
+        else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
+      },
     ),
     modifier = Modifier
       .fillMaxWidth()
@@ -522,11 +566,26 @@ private fun LessonModuleCard(
               modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             )
           }
-          Text(
-            text = "${lesson.questions.size} items",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
+          if (inProgress != null) {
+            Surface(
+              color = SunGold.copy(alpha = 0.18f),
+              shape = RoundedCornerShape(8.dp),
+            ) {
+              Text(
+                text = "Resume #${inProgress.currentIndex + 1}",
+                style = MaterialTheme.typography.labelSmall,
+                color = SunGold,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+              )
+            }
+          } else {
+            Text(
+              text = "${lesson.questions.size} items",
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
           for (s in 1..3) {
@@ -551,7 +610,28 @@ private fun LessonModuleCard(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
-      if (progress != null && progress.totalQuestions > 0) {
+      if (inProgress != null && lesson.questions.isNotEmpty()) {
+        Spacer(Modifier.height(10.dp))
+        val ratio = (inProgress.answeredCount.toFloat() / lesson.questions.size).coerceIn(0f, 1f)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          LinearProgressIndicator(
+            progress = { ratio },
+            color = SunGold,
+            trackColor = SunGold.copy(alpha = 0.18f),
+            modifier = Modifier
+              .weight(1f)
+              .height(7.dp)
+              .clip(RoundedCornerShape(50)),
+          )
+          Spacer(Modifier.width(10.dp))
+          Text(
+            text = "In Progress: ${inProgress.answeredCount}/${lesson.questions.size}",
+            style = MaterialTheme.typography.labelSmall,
+            color = SunGold,
+            fontWeight = FontWeight.Bold,
+          )
+        }
+      } else if (progress != null && progress.totalQuestions > 0) {
         Spacer(Modifier.height(10.dp))
         val ratio = (progress.bestScore.toFloat() / progress.totalQuestions).coerceIn(0f, 1f)
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -14732,15 +14732,15 @@
         {
           "id": "g6_t3_l51_q04",
           "type": "MATCHING",
-          "prompt": "Match the motion/event to what it explains",
+          "prompt": "Match each Earth or Moon motion/event to what it explains:",
           "leftItems": [
-            "Earth's rotation on its axis",
-            "Earth–Sun relationship/tilt & revolution",
-            "Alignment of Sun, Earth, and Moon"
+            "Earth spinning on its axis (Rotation)",
+            "Earth's tilted orbit around the Sun (Revolution)",
+            "Sun, Earth, and Moon lining up in space"
           ],
           "rightItems": [
-            "Day and night",
-            "Changes in seasons and visible star patterns across the year",
+            "Cycle of day and night",
+            "Changing seasons and yearly star patterns",
             "Solar and lunar eclipses"
           ],
           "correctPairs": {
@@ -14748,32 +14748,33 @@
             "1": 1,
             "2": 2
           },
-          "answerText": "1-A, 2-B, 3-C"
+          "explanation": "Earth's rotation causes day and night, Earth's tilted revolution around the Sun causes the seasons and changing yearly star patterns, and Sun–Earth–Moon alignment causes solar and lunar eclipses.",
+          "answerText": "Earth spinning on its axis (Rotation) → Cycle of day and night; Earth's tilted orbit around the Sun (Revolution) → Changing seasons and yearly star patterns; Sun, Earth, and Moon lining up in space → Solar and lunar eclipses"
         },
         {
           "id": "g6_t3_l51_q05",
           "type": "SORT_BUCKETS",
-          "prompt": "Drag each event into the right model explanation",
+          "prompt": "Sort each observable event into the motion or alignment that explains it:",
           "buckets": [
-            "Day/night",
-            "Seasons/star patterns",
-            "Eclipses"
+            "Rotation on Axis",
+            "Tilt & Revolution",
+            "Sun–Earth–Moon Alignment"
           ],
           "cards": [
             {
               "text": "Day and night",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
-              "text": "Seasons & yearly visible star patterns",
+              "text": "Seasons & yearly star patterns",
               "bucketIndex": 1
             },
             {
               "text": "Solar and lunar eclipses",
-              "bucketIndex": 1
+              "bucketIndex": 2
             }
           ],
-          "answerText": "Day/night = Rotation on axis; Seasons/star patterns = Earth's motion/revolution & tilt around Sun; Eclipses = Sun–Earth–Moon alignment"
+          "answerText": "Day and night = Rotation on Axis; Seasons & yearly star patterns = Tilt & Revolution; Solar and lunar eclipses = Sun–Earth–Moon Alignment"
         },
         {
           "id": "g6_t3_l51_q06",

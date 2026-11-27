@@ -53,6 +53,7 @@ import com.example.data.local.CurriculumLoader
 import com.example.data.repository.ScienceRepository
 import com.example.ui.components.AddLearnerDialog
 import com.example.ui.components.LearnerSwitcherDialog
+import com.example.ui.components.PdfReportDialog
 import com.example.ui.screens.ActivityScreen
 import com.example.ui.screens.ChallengeScreen
 import com.example.ui.screens.LearnScreen
@@ -103,6 +104,7 @@ fun AralScienceApp(factory: MainViewModelFactory) {
 
   var showLearnerSwitcher by remember { mutableStateOf(false) }
   var showAddLearner by remember { mutableStateOf(false) }
+  var showMainPdfReport by remember { mutableStateOf(false) }
 
   if (uiState.isLoading) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -119,9 +121,11 @@ fun AralScienceApp(factory: MainViewModelFactory) {
   if (activeSession != null) {
     ActivityScreen(
       session = activeSession,
+      uiState = uiState,
       ttsAutoRead = uiState.stats.ttsAutoRead,
       onSpeakText = { ttsHelper.speak(it) },
       onStopSpeech = { ttsHelper.stop() },
+      onLoadAllSnapshots = viewModel::loadAllLearnersReportSnapshots,
       viewModel = viewModel,
     )
     return
@@ -213,6 +217,7 @@ fun AralScienceApp(factory: MainViewModelFactory) {
               onStartLesson = viewModel::startLesson,
               onOpenLearnerSwitcher = { showLearnerSwitcher = true },
               onOpenAddLearner = { showAddLearner = true },
+              onOpenProgressReport = { showMainPdfReport = true },
             )
           }
           composable(TopTab.CHALLENGE.route) {
@@ -230,6 +235,7 @@ fun AralScienceApp(factory: MainViewModelFactory) {
               onOpenAddLearner = { showAddLearner = true },
               onToggleTtsAutoRead = viewModel::setTtsAutoRead,
               onResetProgress = viewModel::resetAllProgress,
+              onLoadAllSnapshots = viewModel::loadAllLearnersReportSnapshots,
             )
           }
         }
@@ -254,6 +260,14 @@ fun AralScienceApp(factory: MainViewModelFactory) {
       suggestedNumber = uiState.learners.size + 1,
       onCreateLearner = viewModel::addLearner,
       onDismiss = { showAddLearner = false },
+    )
+  }
+
+  if (showMainPdfReport) {
+    PdfReportDialog(
+      uiState = uiState,
+      onLoadAllSnapshots = viewModel::loadAllLearnersReportSnapshots,
+      onDismiss = { showMainPdfReport = false },
     )
   }
 }

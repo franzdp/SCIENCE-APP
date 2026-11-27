@@ -1,8 +1,10 @@
 package com.example.data.repository
 
 import com.example.data.local.ActiveLearnerEntity
+import com.example.data.local.ActivityLogEntity
 import com.example.data.local.CurriculumLoader
 import com.example.data.local.LearnerStatsEntity
+import com.example.data.local.LessonInProgressEntity
 import com.example.data.local.LessonProgressEntity
 import com.example.data.local.MistakeEntity
 import com.example.data.local.ProgressDao
@@ -18,12 +20,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScienceRepository(
   private val curriculumLoader: CurriculumLoader,
   private val progressDao: ProgressDao,
 ) {
+  private val statsMutex = Mutex()
   suspend fun loadCurriculum(): List<ScienceLesson> = curriculumLoader.loadLessons()
 
   fun observeAllLearners(): Flow<List<LearnerStatsEntity>> = progressDao.observeAllLearners()
@@ -48,6 +53,24 @@ class ScienceRepository(
         flowOf(emptyList())
       } else {
         progressDao.observeMistakes(activeId)
+      }
+    }
+
+  fun observeActivityLogs(): Flow<List<ActivityLogEntity>> =
+    progressDao.observeActiveLearnerId().flatMapLatest { activeId ->
+      if (activeId == null) {
+        flowOf(emptyList())
+      } else {
+        progressDao.observeActivityLogs(activeId)
+      }
+    }
+
+  fun observeInProgressLessons(): Flow<Map<String, LessonInProgressEntity>> =
+    progressDao.observeActiveLearnerId().flatMapLatest { activeId ->
+      if (activeId == null) {
+        flowOf(emptyMap())
+      } else {
+        progressDao.observeInProgressLessons(activeId).map { list -> list.associateBy { it.lessonId } }
       }
     }
 
@@ -163,24 +186,92 @@ class ScienceRepository(
     }
   }
 
+  suspend fun getInProgressLesson(learnerId: Long, lessonId: String): LessonInProgressEntity? {
+    val targetLearnerId = progressDao.getLearnerById(learnerId)?.id ?: resolveActiveLearner().id
+    return progressDao.getInProgressLesson(targetLearnerId, lessonId)
+  }
+
+  suspend fun saveInProgressAndFlushStats(
+    learnerId: Long,
+    lessonId: String?,
+    currentIndex: Int,
+    answeredCount: Int,
+    correctCount: Int,
+    sessionXp: Int,
+    streakInSession: Int,
+    missedQuestionIds: List<String>,
+    deltaCorrect: Int,
+    deltaAnswered: Int,
+    deltaXp: Int,
+  ) = statsMutex.withLock {
+    val cur = progressDao.getLearnerById(learnerId) ?: resolveActiveLearner()
+    val targetLearnerId = cur.id
+    val now = System.currentTimeMillis()
+    if (deltaAnswered > 0 || deltaXp > 0) {
+      val today = formatDate(now)
+      val yesterday = formatDate(
+        Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }.timeInMillis
+      )
+      val newStreak = when (cur.lastActiveDay) {
+        today -> maxOf(1, cur.currentStreak)
+        yesterday -> cur.currentStreak + 1
+        else -> 1
+      }
+      progressDao.updateLearnerStats(
+        cur.copy(
+          totalXp = cur.totalXp + deltaXp.coerceAtLeast(0),
+          currentStreak = newStreak,
+          lastActiveDay = today,
+          totalCorrect = cur.totalCorrect + deltaCorrect.coerceAtLeast(0),
+          totalAnswered = cur.totalAnswered + deltaAnswered.coerceAtLeast(0),
+        )
+      )
+    }
+
+    if (lessonId != null && answeredCount > 0) {
+      progressDao.upsertInProgressLesson(
+        LessonInProgressEntity(
+          learnerId = targetLearnerId,
+          lessonId = lessonId,
+          currentIndex = currentIndex,
+          answeredCount = answeredCount,
+          correctCount = correctCount,
+          sessionXp = sessionXp,
+          streakInSession = streakInSession,
+          missedQuestionIds = missedQuestionIds.joinToString(","),
+          updatedAt = now,
+        )
+      )
+    }
+  }
+
   suspend fun completeActivitySession(
     learnerId: Long,
     lessonId: String?,
     correctCount: Int,
     totalCount: Int,
     xpEarned: Int,
-  ) {
+    activityTitle: String = "",
+    activityCategory: String = "",
+    gradeLevel: Int? = null,
+    deltaCorrect: Int = correctCount,
+    deltaAnswered: Int = totalCount,
+    deltaXp: Int = xpEarned,
+  ) = statsMutex.withLock {
     val cur = progressDao.getLearnerById(learnerId) ?: resolveActiveLearner()
     val targetLearnerId = cur.id
-
-    if (lessonId != null && totalCount > 0) {
+    val now = System.currentTimeMillis()
+    val earnedStars = if (totalCount > 0) {
       val accuracy = (correctCount * 100f) / totalCount
-      val earnedStars = when {
+      when {
         accuracy >= 85f -> 3
         accuracy >= 65f -> 2
         accuracy >= 40f -> 1
         else -> 0
       }
+    } else 0
+
+    if (lessonId != null && totalCount > 0) {
       val existing = progressDao.getLessonProgress(targetLearnerId, lessonId)
       progressDao.upsertLessonProgress(
         LessonProgressEntity(
@@ -190,12 +281,36 @@ class ScienceRepository(
           bestScore = maxOf(existing?.bestScore ?: 0, correctCount),
           totalQuestions = totalCount,
           attempts = (existing?.attempts ?: 0) + 1,
-          completedAt = System.currentTimeMillis(),
+          completedAt = now,
+        )
+      )
+      progressDao.deleteInProgressLesson(targetLearnerId, lessonId)
+    }
+
+    if (totalCount > 0) {
+      val resolvedCategory = activityCategory.ifBlank {
+        if (lessonId != null) "Lesson" else "Challenge"
+      }
+      val resolvedTitle = activityTitle.ifBlank {
+        if (lessonId != null) "Lesson $lessonId" else "Science Practice"
+      }
+      progressDao.insertActivityLog(
+        ActivityLogEntity(
+          learnerId = targetLearnerId,
+          activityTitle = resolvedTitle,
+          activityCategory = resolvedCategory,
+          lessonId = lessonId,
+          gradeLevel = gradeLevel ?: cur.selectedGrade,
+          correctCount = correctCount,
+          totalCount = totalCount,
+          xpEarned = xpEarned,
+          starsEarned = earnedStars,
+          completedAt = now,
         )
       )
     }
 
-    val today = formatDate(System.currentTimeMillis())
+    val today = formatDate(now)
     val yesterday = formatDate(
       Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }.timeInMillis
     )
@@ -206,19 +321,38 @@ class ScienceRepository(
     }
     progressDao.updateLearnerStats(
       cur.copy(
-        totalXp = cur.totalXp + xpEarned,
+        totalXp = cur.totalXp + deltaXp.coerceAtLeast(0),
         currentStreak = newStreak,
         lastActiveDay = today,
-        totalCorrect = cur.totalCorrect + correctCount,
-        totalAnswered = cur.totalAnswered + totalCount,
+        totalCorrect = cur.totalCorrect + deltaCorrect.coerceAtLeast(0),
+        totalAnswered = cur.totalAnswered + deltaAnswered.coerceAtLeast(0),
       )
     )
   }
 
-  suspend fun resetProgress() {
+  suspend fun getAllLearnersReportSnapshots(): List<LearnerReportSnapshot> {
+    val learners = progressDao.getAllLearnersOnce()
+    return learners.map { learner ->
+      val progressList = progressDao.getAllLessonProgressOnce(learner.id)
+      val mistakes = progressDao.getMistakesOnce(learner.id)
+      val logs = progressDao.getActivityLogsOnce(learner.id)
+      val inProgressList = progressDao.getInProgressLessonsOnce(learner.id)
+      LearnerReportSnapshot(
+        stats = learner,
+        progressMap = progressList.associateBy { it.lessonId },
+        inProgressMap = inProgressList.associateBy { it.lessonId },
+        mistakes = mistakes,
+        activityLogs = logs,
+      )
+    }
+  }
+
+  suspend fun resetProgress() = statsMutex.withLock {
     val cur = resolveActiveLearner()
     progressDao.clearProgressForLearner(cur.id)
     progressDao.clearMistakesForLearner(cur.id)
+    progressDao.clearActivityLogsForLearner(cur.id)
+    progressDao.clearInProgressForLearner(cur.id)
     progressDao.updateLearnerStats(
       cur.copy(
         totalXp = 0,
@@ -294,3 +428,11 @@ class ScienceRepository(
     return sdf.format(Date(millis))
   }
 }
+
+data class LearnerReportSnapshot(
+  val stats: LearnerStatsEntity,
+  val progressMap: Map<String, LessonProgressEntity>,
+  val inProgressMap: Map<String, LessonInProgressEntity> = emptyMap(),
+  val mistakes: List<MistakeEntity>,
+  val activityLogs: List<ActivityLogEntity>,
+)

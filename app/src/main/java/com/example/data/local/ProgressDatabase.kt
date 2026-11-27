@@ -81,6 +81,57 @@ data class MistakeEntity(
   val timestamp: Long = System.currentTimeMillis(),
 )
 
+@Entity(
+  tableName = "activity_logs",
+  foreignKeys = [
+    ForeignKey(
+      entity = LearnerStatsEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["learnerId"],
+      onDelete = ForeignKey.CASCADE,
+    )
+  ],
+  indices = [Index("learnerId")],
+)
+data class ActivityLogEntity(
+  @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+  val learnerId: Long,
+  val activityTitle: String,
+  val activityCategory: String,
+  val lessonId: String? = null,
+  val gradeLevel: Int,
+  val correctCount: Int,
+  val totalCount: Int,
+  val xpEarned: Int,
+  val starsEarned: Int,
+  val completedAt: Long = System.currentTimeMillis(),
+)
+
+@Entity(
+  tableName = "lesson_in_progress",
+  primaryKeys = ["learnerId", "lessonId"],
+  foreignKeys = [
+    ForeignKey(
+      entity = LearnerStatsEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["learnerId"],
+      onDelete = ForeignKey.CASCADE,
+    )
+  ],
+  indices = [Index("learnerId")],
+)
+data class LessonInProgressEntity(
+  val learnerId: Long,
+  val lessonId: String,
+  val currentIndex: Int,
+  val answeredCount: Int,
+  val correctCount: Int,
+  val sessionXp: Int,
+  val streakInSession: Int,
+  val missedQuestionIds: String = "",
+  val updatedAt: Long = System.currentTimeMillis(),
+)
+
 @Dao
 interface ProgressDao {
   @Query("SELECT * FROM learner_stats ORDER BY createdAt ASC, id ASC")
@@ -113,6 +164,9 @@ interface ProgressDao {
   @Query("SELECT * FROM lesson_progress WHERE learnerId = :learnerId")
   fun observeAllLessonProgress(learnerId: Long): Flow<List<LessonProgressEntity>>
 
+  @Query("SELECT * FROM lesson_progress WHERE learnerId = :learnerId")
+  suspend fun getAllLessonProgressOnce(learnerId: Long): List<LessonProgressEntity>
+
   @Query("SELECT * FROM lesson_progress")
   fun observeAllLearnersLessonProgress(): Flow<List<LessonProgressEntity>>
 
@@ -125,17 +179,50 @@ interface ProgressDao {
   @Query("SELECT * FROM missed_questions WHERE learnerId = :learnerId ORDER BY timestamp DESC")
   fun observeMistakes(learnerId: Long): Flow<List<MistakeEntity>>
 
+  @Query("SELECT * FROM missed_questions WHERE learnerId = :learnerId ORDER BY timestamp DESC")
+  suspend fun getMistakesOnce(learnerId: Long): List<MistakeEntity>
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertMistake(entity: MistakeEntity)
 
   @Query("DELETE FROM missed_questions WHERE learnerId = :learnerId AND questionId = :questionId")
   suspend fun deleteMistake(learnerId: Long, questionId: String)
 
+  @Query("SELECT * FROM activity_logs WHERE learnerId = :learnerId ORDER BY completedAt DESC, id DESC")
+  fun observeActivityLogs(learnerId: Long): Flow<List<ActivityLogEntity>>
+
+  @Query("SELECT * FROM activity_logs WHERE learnerId = :learnerId ORDER BY completedAt DESC, id DESC")
+  suspend fun getActivityLogsOnce(learnerId: Long): List<ActivityLogEntity>
+
+  @Insert
+  suspend fun insertActivityLog(log: ActivityLogEntity)
+
   @Query("DELETE FROM lesson_progress WHERE learnerId = :learnerId")
   suspend fun clearProgressForLearner(learnerId: Long)
 
   @Query("DELETE FROM missed_questions WHERE learnerId = :learnerId")
   suspend fun clearMistakesForLearner(learnerId: Long)
+
+  @Query("DELETE FROM activity_logs WHERE learnerId = :learnerId")
+  suspend fun clearActivityLogsForLearner(learnerId: Long)
+
+  @Query("SELECT * FROM lesson_in_progress WHERE learnerId = :learnerId")
+  fun observeInProgressLessons(learnerId: Long): Flow<List<LessonInProgressEntity>>
+
+  @Query("SELECT * FROM lesson_in_progress WHERE learnerId = :learnerId")
+  suspend fun getInProgressLessonsOnce(learnerId: Long): List<LessonInProgressEntity>
+
+  @Query("SELECT * FROM lesson_in_progress WHERE learnerId = :learnerId AND lessonId = :lessonId LIMIT 1")
+  suspend fun getInProgressLesson(learnerId: Long, lessonId: String): LessonInProgressEntity?
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun upsertInProgressLesson(entity: LessonInProgressEntity)
+
+  @Query("DELETE FROM lesson_in_progress WHERE learnerId = :learnerId AND lessonId = :lessonId")
+  suspend fun deleteInProgressLesson(learnerId: Long, lessonId: String)
+
+  @Query("DELETE FROM lesson_in_progress WHERE learnerId = :learnerId")
+  suspend fun clearInProgressForLearner(learnerId: Long)
 }
 
 @Database(
@@ -144,8 +231,10 @@ interface ProgressDao {
     ActiveLearnerEntity::class,
     LessonProgressEntity::class,
     MistakeEntity::class,
+    ActivityLogEntity::class,
+    LessonInProgressEntity::class,
   ],
-  version = 2,
+  version = 4,
   exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -273,6 +362,53 @@ abstract class AppDatabase : RoomDatabase() {
       }
     }
 
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `activity_logs` (
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            `learnerId` INTEGER NOT NULL,
+            `activityTitle` TEXT NOT NULL,
+            `activityCategory` TEXT NOT NULL,
+            `lessonId` TEXT,
+            `gradeLevel` INTEGER NOT NULL,
+            `correctCount` INTEGER NOT NULL,
+            `totalCount` INTEGER NOT NULL,
+            `xpEarned` INTEGER NOT NULL,
+            `starsEarned` INTEGER NOT NULL,
+            `completedAt` INTEGER NOT NULL,
+            FOREIGN KEY(`learnerId`) REFERENCES `learner_stats`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+          )
+          """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_activity_logs_learnerId` ON `activity_logs` (`learnerId`)")
+      }
+    }
+
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `lesson_in_progress` (
+            `learnerId` INTEGER NOT NULL,
+            `lessonId` TEXT NOT NULL,
+            `currentIndex` INTEGER NOT NULL,
+            `answeredCount` INTEGER NOT NULL,
+            `correctCount` INTEGER NOT NULL,
+            `sessionXp` INTEGER NOT NULL,
+            `streakInSession` INTEGER NOT NULL,
+            `missedQuestionIds` TEXT NOT NULL,
+            `updatedAt` INTEGER NOT NULL,
+            PRIMARY KEY(`learnerId`, `lessonId`),
+            FOREIGN KEY(`learnerId`) REFERENCES `learner_stats`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+          )
+          """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_lesson_in_progress_learnerId` ON `lesson_in_progress` (`learnerId`)")
+      }
+    }
+
     fun getInstance(context: Context): AppDatabase {
       return INSTANCE ?: synchronized(this) {
         INSTANCE ?: Room.databaseBuilder(
@@ -280,7 +416,7 @@ abstract class AppDatabase : RoomDatabase() {
           AppDatabase::class.java,
           "aral_science_db",
         )
-          .addMigrations(MIGRATION_1_2)
+          .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
           .build()
           .also { INSTANCE = it }
       }

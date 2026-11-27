@@ -3,7 +3,9 @@ package com.example.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.data.local.ActivityLogEntity
 import com.example.data.local.LearnerStatsEntity
+import com.example.data.local.LessonInProgressEntity
 import com.example.data.local.LessonProgressEntity
 import com.example.data.local.MistakeEntity
 import com.example.data.model.ChallengeMode
@@ -11,6 +13,7 @@ import com.example.data.model.QuestionType
 import com.example.data.model.ScienceBadge
 import com.example.data.model.ScienceLesson
 import com.example.data.model.ScienceQuestion
+import com.example.data.repository.LearnerReportSnapshot
 import com.example.data.repository.ScienceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +23,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 data class AppUiState(
   val isLoading: Boolean = true,
@@ -29,7 +34,9 @@ data class AppUiState(
   val selectedTerm: Int? = null,
   val searchQuery: String = "",
   val progressMap: Map<String, LessonProgressEntity> = emptyMap(),
+  val inProgressMap: Map<String, LessonInProgressEntity> = emptyMap(),
   val mistakes: List<MistakeEntity> = emptyList(),
+  val activityLogs: List<ActivityLogEntity> = emptyList(),
   val stats: LearnerStatsEntity = LearnerStatsEntity(),
   val learners: List<LearnerStatsEntity> = emptyList(),
   val learnerStarsMap: Map<Long, Int> = emptyMap(),
@@ -60,12 +67,21 @@ data class ActivitySessionState(
   val learnerId: Long = 1L,
   val title: String = "",
   val subtitle: String = "",
+  val activityCategory: String = "Lesson",
+  val gradeLevel: Int = 5,
   val lessonId: String? = null,
   val questions: List<ScienceQuestion> = emptyList(),
   val currentIndex: Int = 0,
+  val answeredCount: Int = 0,
   val correctCount: Int = 0,
   val sessionXp: Int = 0,
   val currentStreakInSession: Int = 0,
+  val attemptNumber: Int = 1,
+  val isRetryPending: Boolean = false,
+  val flushedCorrectCount: Int = 0,
+  val flushedAnsweredCount: Int = 0,
+  val flushedXpEarned: Int = 0,
+  val hasCompletedSessionRecord: Boolean = false,
   val missedInSession: List<ScienceQuestion> = emptyList(),
   val isCompleted: Boolean = false,
   val feedback: QuestionAnswerFeedback? = null,
@@ -109,6 +125,15 @@ class MainViewModel(
 
   private val _session = MutableStateFlow<ActivitySessionState?>(null)
   val sessionState: StateFlow<ActivitySessionState?> = _session.asStateFlow()
+  private val dbMutex = Mutex()
+
+  private fun launchPersist(block: suspend () -> Unit) {
+    viewModelScope.launch {
+      dbMutex.withLock {
+        block()
+      }
+    }
+  }
 
   val uiState: StateFlow<AppUiState> = combine(
     _isLoading,
@@ -121,6 +146,8 @@ class MainViewModel(
     repository.observeLearnerStats(),
     repository.observeAllLearners(),
     repository.observeStarsByLearner(),
+    repository.observeActivityLogs(),
+    repository.observeInProgressLessons(),
   ) { values ->
     @Suppress("UNCHECKED_CAST")
     val loading = values[0] as Boolean
@@ -137,6 +164,10 @@ class MainViewModel(
     val learners = values[8] as List<LearnerStatsEntity>
     @Suppress("UNCHECKED_CAST")
     val learnerStarsMap = values[9] as Map<Long, Int>
+    @Suppress("UNCHECKED_CAST")
+    val activityLogs = values[10] as List<ActivityLogEntity>
+    @Suppress("UNCHECKED_CAST")
+    val inProgressMap = values[11] as Map<String, LessonInProgressEntity>
 
     AppUiState(
       isLoading = loading,
@@ -146,7 +177,9 @@ class MainViewModel(
       selectedTerm = term,
       searchQuery = query,
       progressMap = progressMap,
+      inProgressMap = inProgressMap,
       mistakes = mistakes,
+      activityLogs = activityLogs,
       stats = stats,
       learners = learners,
       learnerStarsMap = learnerStarsMap,
@@ -172,7 +205,7 @@ class MainViewModel(
   }
 
   fun selectGrade(grade: Int) {
-    viewModelScope.launch { repository.setSelectedGrade(grade) }
+    launchPersist { repository.setSelectedGrade(grade) }
   }
 
   fun selectTerm(term: Int?) {
@@ -184,43 +217,67 @@ class MainViewModel(
   }
 
   fun updateProfile(name: String, grade: Int, avatarIndex: Int? = null) {
-    viewModelScope.launch { repository.updateLearnerProfile(name, grade, avatarIndex) }
+    launchPersist { repository.updateLearnerProfile(name, grade, avatarIndex) }
   }
 
   fun switchLearner(learnerId: Long) {
     _session.value = null
-    viewModelScope.launch { repository.switchLearner(learnerId) }
+    launchPersist { repository.switchLearner(learnerId) }
   }
 
   fun addLearner(name: String, grade: Int, avatarIndex: Int) {
     _session.value = null
-    viewModelScope.launch { repository.addLearner(name, grade, avatarIndex, switchToNew = true) }
+    launchPersist { repository.addLearner(name, grade, avatarIndex, switchToNew = true) }
   }
 
   fun deleteLearner(learnerId: Long) {
-    viewModelScope.launch { repository.deleteLearner(learnerId) }
+    launchPersist { repository.deleteLearner(learnerId) }
   }
 
   fun setTtsAutoRead(enabled: Boolean) {
-    viewModelScope.launch { repository.setTtsAutoRead(enabled) }
+    launchPersist { repository.setTtsAutoRead(enabled) }
   }
 
   fun resetAllProgress() {
-    viewModelScope.launch { repository.resetProgress() }
+    launchPersist { repository.resetProgress() }
   }
 
+  suspend fun loadAllLearnersReportSnapshots(): List<LearnerReportSnapshot> =
+    dbMutex.withLock { repository.getAllLearnersReportSnapshots() }
+
   fun startLesson(lesson: ScienceLesson) {
-    val firstQ = lesson.questions.firstOrNull() ?: return
+    if (lesson.questions.isEmpty()) return
     val activeLearnerId = uiState.value.stats.id
+    val saved = uiState.value.inProgressMap[lesson.id]
+    val resumeIdx = if (saved != null && saved.currentIndex in 1 until lesson.questions.size) {
+      saved.currentIndex
+    } else 0
+    val targetQ = lesson.questions[resumeIdx]
+    val restoredMissed = if (saved != null && resumeIdx > 0 && saved.missedQuestionIds.isNotBlank()) {
+      val missedSet = saved.missedQuestionIds.split(",").filter { it.isNotBlank() }.toSet()
+      lesson.questions.filter { it.id in missedSet }
+    } else emptyList()
+
     _session.value = initQuestionState(
       ActivitySessionState(
         learnerId = activeLearnerId,
         title = lesson.title,
         subtitle = "Grade ${lesson.grade} • Term ${lesson.term} • ${lesson.weeks}",
+        activityCategory = "Lesson (Term ${lesson.term})",
+        gradeLevel = lesson.grade,
         lessonId = lesson.id,
         questions = lesson.questions,
+        currentIndex = resumeIdx,
+        answeredCount = if (resumeIdx > 0) saved?.answeredCount ?: resumeIdx else 0,
+        correctCount = if (resumeIdx > 0) saved?.correctCount ?: 0 else 0,
+        sessionXp = if (resumeIdx > 0) saved?.sessionXp ?: 0 else 0,
+        currentStreakInSession = if (resumeIdx > 0) saved?.streakInSession ?: 0 else 0,
+        flushedCorrectCount = if (resumeIdx > 0) saved?.correctCount ?: 0 else 0,
+        flushedAnsweredCount = if (resumeIdx > 0) saved?.answeredCount ?: resumeIdx else 0,
+        flushedXpEarned = if (resumeIdx > 0) saved?.sessionXp ?: 0 else 0,
+        missedInSession = restoredMissed,
       ),
-      firstQ,
+      targetQ,
     )
   }
 
@@ -235,6 +292,8 @@ class MainViewModel(
         learnerId = activeLearnerId,
         title = "Review Missed Questions",
         subtitle = "${reviewQs.size} items to master",
+        activityCategory = "Intervention Review",
+        gradeLevel = uiState.value.selectedGrade,
         lessonId = null,
         questions = reviewQs,
       ),
@@ -276,6 +335,8 @@ class MainViewModel(
         learnerId = activeLearnerId,
         title = mode.title,
         subtitle = "Grade $grade • ${picked.size} Activities",
+        activityCategory = "Challenge",
+        gradeLevel = grade,
         lessonId = null,
         questions = picked,
       ),
@@ -292,6 +353,8 @@ class MainViewModel(
         learnerId = cur.learnerId,
         title = "Practice Missed Items",
         subtitle = "${qs.size} items",
+        activityCategory = "Remediation Practice",
+        gradeLevel = cur.gradeLevel,
         lessonId = null,
         questions = qs,
       ),
@@ -299,8 +362,79 @@ class MainViewModel(
     )
   }
 
+  fun saveAndPauseSession(closeSession: Boolean = true) {
+    val cur = _session.value ?: return
+    val isCurrentFinalized = cur.feedback != null && !cur.isRetryPending
+    val nextUnansweredIdx = if (isCurrentFinalized) cur.currentIndex + 1 else cur.currentIndex
+
+    if (!cur.hasCompletedSessionRecord && cur.answeredCount >= cur.questions.size && cur.questions.isNotEmpty()) {
+      val deltaCorrect = (cur.correctCount - cur.flushedCorrectCount).coerceAtLeast(0)
+      val deltaAnswered = (cur.answeredCount - cur.flushedAnsweredCount).coerceAtLeast(0)
+      val deltaXp = (cur.sessionXp - cur.flushedXpEarned).coerceAtLeast(0)
+      launchPersist {
+        repository.completeActivitySession(
+          learnerId = cur.learnerId,
+          lessonId = cur.lessonId,
+          correctCount = cur.correctCount,
+          totalCount = cur.questions.size,
+          xpEarned = cur.sessionXp,
+          activityTitle = cur.title,
+          activityCategory = cur.activityCategory,
+          gradeLevel = cur.gradeLevel,
+          deltaCorrect = deltaCorrect,
+          deltaAnswered = deltaAnswered,
+          deltaXp = deltaXp,
+        )
+      }
+      _session.value = if (closeSession) null else cur.copy(hasCompletedSessionRecord = true)
+      return
+    }
+
+    if (cur.answeredCount > 0) {
+      val deltaCorrect = (cur.correctCount - cur.flushedCorrectCount).coerceAtLeast(0)
+      val deltaAnswered = (cur.answeredCount - cur.flushedAnsweredCount).coerceAtLeast(0)
+      val deltaXp = (cur.sessionXp - cur.flushedXpEarned).coerceAtLeast(0)
+      launchPersist {
+        repository.saveInProgressAndFlushStats(
+          learnerId = cur.learnerId,
+          lessonId = cur.lessonId,
+          currentIndex = nextUnansweredIdx.coerceAtMost(cur.questions.lastIndex.coerceAtLeast(0)),
+          answeredCount = cur.answeredCount,
+          correctCount = cur.correctCount,
+          sessionXp = cur.sessionXp,
+          streakInSession = cur.currentStreakInSession,
+          missedQuestionIds = cur.missedInSession.map { it.id },
+          deltaCorrect = deltaCorrect,
+          deltaAnswered = deltaAnswered,
+          deltaXp = deltaXp,
+        )
+      }
+    }
+    if (closeSession) {
+      _session.value = null
+    } else {
+      _session.value = cur.copy(
+        flushedCorrectCount = cur.correctCount,
+        flushedAnsweredCount = cur.answeredCount,
+        flushedXpEarned = cur.sessionXp,
+      )
+    }
+  }
+
   fun exitSession() {
-    _session.value = null
+    saveAndPauseSession(closeSession = true)
+  }
+
+  fun retrySecondAttempt() {
+    val cur = _session.value ?: return
+    val q = cur.currentQuestion ?: return
+    _session.value = initQuestionState(
+      cur.copy(
+        attemptNumber = 2,
+        isRetryPending = false,
+      ),
+      q,
+    )
   }
 
   private fun initQuestionState(
@@ -523,45 +657,93 @@ class MainViewModel(
       }
     }
 
+    if (!isCorrect && cur.attemptNumber == 1) {
+      _session.value = cur.copy(
+        isRetryPending = true,
+        feedback = QuestionAnswerFeedback(
+          isCorrect = false,
+          headline = "Not quite — Try Again! (1 try left)",
+          detail = "Look closely at the question and give it one more try.",
+          xpGained = 0,
+        ),
+      )
+      return
+    }
+
     val newStreak = if (isCorrect) cur.currentStreakInSession + 1 else 0
-    val xpGained = if (isCorrect) 10 + (if (newStreak >= 3) 5 else 0) else 2
-    val headline = if (isCorrect) {
-      when {
-        newStreak >= 5 -> "Unstoppable! $newStreak in a row!"
-        newStreak >= 3 -> "Great Streak! +$xpGained XP"
-        else -> "Awesome Job! +$xpGained XP"
-      }
-    } else {
-      "Not quite — let's learn!"
+    val xpGained = when {
+      isCorrect && cur.attemptNumber == 1 -> 10 + (if (newStreak >= 3) 5 else 0)
+      isCorrect -> 6
+      else -> 2
+    }
+    val headline = when {
+      isCorrect && cur.attemptNumber > 1 -> "Great recovery on Try 2! +$xpGained XP"
+      isCorrect && newStreak >= 5 -> "Unstoppable! $newStreak in a row!"
+      isCorrect && newStreak >= 3 -> "Great Streak! +$xpGained XP"
+      isCorrect -> "Awesome Job! +$xpGained XP"
+      else -> "Recorded for Review — Let's Learn!"
     }
     val detail = buildString {
       if (!isCorrect) {
-        append("Correct answer: ")
-        append(
-          when (q.type) {
-            QuestionType.MULTIPLE_CHOICE -> q.options.getOrNull(q.correctIndex) ?: q.answerText
-            QuestionType.TRUE_FALSE -> if (q.correctBool) "True" else "False"
-            else -> q.answerText
+        append("Correct answer:")
+        val formattedAnswer = when (q.type) {
+          QuestionType.MULTIPLE_CHOICE -> " " + (q.options.getOrNull(q.correctIndex) ?: q.answerText)
+          QuestionType.TRUE_FALSE -> " " + if (q.correctBool) "True" else "False"
+          QuestionType.MATCHING -> "\n" + q.leftItems.indices.joinToString("\n") { lIdx ->
+            val rIdx = q.correctPairs[lIdx]
+            val rightText = if (rIdx != null) q.rightItems.getOrElse(rIdx) { "" } else ""
+            "• ${q.leftItems[lIdx]} → $rightText"
           }
-        )
+          else -> " ${q.answerText}"
+        }
+        append(formattedAnswer)
       }
       if (q.explanation.isNotBlank()) {
         if (isNotEmpty()) append("\n")
         append(q.explanation)
       }
     }.ifBlank {
-      if (isCorrect) "You nailed this science concept!" else "Review the highlighted answer above."
+      if (isCorrect) "You nailed this science concept!" else "Review the correct answer above."
     }
 
-    viewModelScope.launch {
+    val newCorrect = cur.correctCount + if (isCorrect) 1 else 0
+    val newAnswered = cur.answeredCount + 1
+    val newXp = cur.sessionXp + xpGained
+    val newMissed = if (isCorrect) cur.missedInSession else cur.missedInSession + q
+    val deltaCorrect = (newCorrect - cur.flushedCorrectCount).coerceAtLeast(0)
+    val deltaAnswered = (newAnswered - cur.flushedAnsweredCount).coerceAtLeast(0)
+    val deltaXp = (newXp - cur.flushedXpEarned).coerceAtLeast(0)
+    val nextIdxForSave = (cur.currentIndex + 1).coerceAtMost(cur.questions.lastIndex.coerceAtLeast(0))
+
+    launchPersist {
       repository.recordQuestionResult(cur.learnerId, q.id, q.lessonId, isCorrect)
+      if (newAnswered < cur.questions.size) {
+        repository.saveInProgressAndFlushStats(
+          learnerId = cur.learnerId,
+          lessonId = cur.lessonId,
+          currentIndex = nextIdxForSave,
+          answeredCount = newAnswered,
+          correctCount = newCorrect,
+          sessionXp = newXp,
+          streakInSession = newStreak,
+          missedQuestionIds = newMissed.map { it.id },
+          deltaCorrect = deltaCorrect,
+          deltaAnswered = deltaAnswered,
+          deltaXp = deltaXp,
+        )
+      }
     }
 
     _session.value = cur.copy(
-      correctCount = cur.correctCount + if (isCorrect) 1 else 0,
-      sessionXp = cur.sessionXp + xpGained,
+      answeredCount = newAnswered,
+      correctCount = newCorrect,
+      sessionXp = newXp,
       currentStreakInSession = newStreak,
-      missedInSession = if (isCorrect) cur.missedInSession else cur.missedInSession + q,
+      isRetryPending = false,
+      flushedCorrectCount = if (newAnswered < cur.questions.size) newCorrect else cur.flushedCorrectCount,
+      flushedAnsweredCount = if (newAnswered < cur.questions.size) newAnswered else cur.flushedAnsweredCount,
+      flushedXpEarned = if (newAnswered < cur.questions.size) newXp else cur.flushedXpEarned,
+      missedInSession = newMissed,
       feedback = QuestionAnswerFeedback(
         isCorrect = isCorrect,
         headline = headline,
@@ -575,19 +757,43 @@ class MainViewModel(
     val cur = _session.value ?: return
     val nextIdx = cur.currentIndex + 1
     if (nextIdx >= cur.questions.size) {
-      viewModelScope.launch {
-        repository.completeActivitySession(
-          learnerId = cur.learnerId,
-          lessonId = cur.lessonId,
-          correctCount = cur.correctCount,
-          totalCount = cur.questions.size,
-          xpEarned = cur.sessionXp,
-        )
+      if (!cur.hasCompletedSessionRecord) {
+        val deltaCorrect = (cur.correctCount - cur.flushedCorrectCount).coerceAtLeast(0)
+        val deltaAnswered = (cur.answeredCount - cur.flushedAnsweredCount).coerceAtLeast(0)
+        val deltaXp = (cur.sessionXp - cur.flushedXpEarned).coerceAtLeast(0)
+        launchPersist {
+          repository.completeActivitySession(
+            learnerId = cur.learnerId,
+            lessonId = cur.lessonId,
+            correctCount = cur.correctCount,
+            totalCount = cur.questions.size,
+            xpEarned = cur.sessionXp,
+            activityTitle = cur.title,
+            activityCategory = cur.activityCategory,
+            gradeLevel = cur.gradeLevel,
+            deltaCorrect = deltaCorrect,
+            deltaAnswered = deltaAnswered,
+            deltaXp = deltaXp,
+          )
+        }
       }
-      _session.value = cur.copy(isCompleted = true, feedback = null)
+      _session.value = cur.copy(
+        isCompleted = true,
+        hasCompletedSessionRecord = true,
+        flushedCorrectCount = cur.correctCount,
+        flushedAnsweredCount = cur.answeredCount,
+        flushedXpEarned = cur.sessionXp,
+        feedback = null,
+        attemptNumber = 1,
+        isRetryPending = false,
+      )
     } else {
       _session.value = initQuestionState(
-        cur.copy(currentIndex = nextIdx),
+        cur.copy(
+          currentIndex = nextIdx,
+          attemptNumber = 1,
+          isRetryPending = false,
+        ),
         cur.questions[nextIdx],
       )
     }

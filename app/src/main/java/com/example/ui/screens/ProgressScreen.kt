@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Star
@@ -58,8 +59,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.repository.LearnerReportSnapshot
 import com.example.ui.components.AvatarPickerRow
 import com.example.ui.components.LearnerAvatarBadge
+import com.example.ui.components.PdfReportDialog
 import com.example.ui.theme.CoralError
 import com.example.ui.theme.LeafSecondary
 import com.example.ui.theme.SkyPrimary
@@ -75,10 +78,13 @@ fun ProgressScreen(
   onOpenAddLearner: () -> Unit,
   onToggleTtsAutoRead: (Boolean) -> Unit,
   onResetProgress: () -> Unit,
+  onLoadAllSnapshots: suspend () -> List<LearnerReportSnapshot>,
   modifier: Modifier = Modifier,
 ) {
   var showEditDialog by remember { mutableStateOf(false) }
   var showResetDialog by remember { mutableStateOf(false) }
+  var showPdfDialog by remember { mutableStateOf(false) }
+  var showAllActivities by remember { mutableStateOf(false) }
 
   val accuracy = if (uiState.stats.totalAnswered > 0) {
     ((uiState.stats.totalCorrect * 100f) / uiState.stats.totalAnswered).toInt()
@@ -215,6 +221,69 @@ fun ProgressScreen(
         }
       }
 
+      // ARAL PDF Progress Report Card
+      item {
+        Surface(
+          shape = RoundedCornerShape(22.dp),
+          color = SkyPrimary.copy(alpha = 0.08f),
+          border = BorderStroke(1.5.dp, SkyPrimary.copy(alpha = 0.35f)),
+          modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdf_report_card"),
+        ) {
+          Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+          ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = SkyPrimary.copy(alpha = 0.16f),
+                modifier = Modifier.size(46.dp),
+              ) {
+                Box(contentAlignment = Alignment.Center) {
+                  Icon(
+                    imageVector = Icons.Rounded.PictureAsPdf,
+                    contentDescription = null,
+                    tint = SkyPrimary,
+                  )
+                }
+              }
+              Spacer(Modifier.width(12.dp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text(
+                  text = "ARAL PDF Progress Report",
+                  style = MaterialTheme.typography.titleMedium,
+                  fontWeight = FontWeight.Bold,
+                )
+                Text(
+                  text = "Export activity-by-activity scores, mastery levels & intervention summary",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              }
+            }
+
+            Button(
+              onClick = { showPdfDialog = true },
+              colors = ButtonDefaults.buttonColors(
+                containerColor = SkyPrimary,
+                contentColor = Color.White,
+              ),
+              shape = RoundedCornerShape(14.dp),
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .testTag("open_pdf_report_button"),
+            ) {
+              Icon(Icons.Rounded.PictureAsPdf, contentDescription = null, modifier = Modifier.size(18.dp))
+              Spacer(Modifier.width(8.dp))
+              Text("Generate & Export PDF Report", fontWeight = FontWeight.SemiBold)
+            }
+          }
+        }
+      }
+
       // Grade Progress Bars
       item {
         Surface(
@@ -257,6 +326,109 @@ fun ProgressScreen(
                     .height(8.dp)
                     .clip(RoundedCornerShape(50)),
                 )
+              }
+            }
+          }
+        }
+      }
+
+      // Progress by Activities (Selected Grade Preview)
+      item {
+        val gradeActivities = uiState.allLessons
+          .filter { it.grade == uiState.stats.selectedGrade }
+          .sortedBy { it.order }
+        val visibleActivities = if (showAllActivities) gradeActivities else gradeActivities.take(5)
+        Surface(
+          shape = RoundedCornerShape(22.dp),
+          color = MaterialTheme.colorScheme.surface,
+          border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
+          modifier = Modifier
+            .fillMaxWidth()
+            .testTag("activities_progress_card"),
+        ) {
+          Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text(
+                  "Grade ${uiState.stats.selectedGrade} Progress by Activities",
+                  style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                  "${gradeActivities.count { (uiState.progressMap[it.id]?.stars ?: 0) >= 1 }} / ${gradeActivities.size} activities completed",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              }
+              if (gradeActivities.size > 5) {
+                TextButton(onClick = { showAllActivities = !showAllActivities }) {
+                  Text(if (showAllActivities) "Show Less" else "See All (${gradeActivities.size})")
+                }
+              }
+            }
+
+            visibleActivities.forEach { lesson ->
+              val prog = uiState.progressMap[lesson.id]
+              val inProg = uiState.inProgressMap[lesson.id]
+              val stars = prog?.stars ?: 0
+              val status = when {
+                inProg != null -> "In Progress"
+                prog == null || prog.attempts == 0 -> "Not Started"
+                stars == 3 -> "Mastered"
+                stars == 2 -> "Developing"
+                stars == 1 -> "Emerging"
+                else -> "Needs Help"
+              }
+              val statusColor = when (status) {
+                "Mastered" -> LeafSecondary
+                "Developing" -> SkyPrimary
+                "In Progress", "Emerging" -> SunGold
+                "Needs Help" -> CoralError
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+              }
+              Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.fillMaxWidth(),
+              ) {
+                Row(
+                  modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                  verticalAlignment = Alignment.CenterVertically,
+                ) {
+                  Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                      text = "T${lesson.term} • ${lesson.title}",
+                      style = MaterialTheme.typography.bodyMedium,
+                      fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                      text = when {
+                        inProg != null -> "Answered ${inProg.answeredCount}/${lesson.questions.size} • Next: Item #${inProg.currentIndex + 1}"
+                        prog != null && prog.totalQuestions > 0 -> "Best: ${prog.bestScore}/${prog.totalQuestions} • Attempts: ${prog.attempts}"
+                        else -> "${lesson.weeks} • ${lesson.questions.size} items"
+                      },
+                      style = MaterialTheme.typography.bodySmall,
+                      color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                  }
+                  Spacer(Modifier.width(8.dp))
+                  Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                      text = "★".repeat(stars) + "☆".repeat((3 - stars).coerceAtLeast(0)),
+                      style = MaterialTheme.typography.labelMedium,
+                      color = if (stars > 0) SunGold else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                      text = status,
+                      style = MaterialTheme.typography.labelSmall,
+                      color = statusColor,
+                      fontWeight = FontWeight.Bold,
+                    )
+                  }
+                }
               }
             }
           }
@@ -459,6 +631,14 @@ fun ProgressScreen(
       dismissButton = {
         TextButton(onClick = { showEditDialog = false }) { Text("Cancel") }
       },
+    )
+  }
+
+  if (showPdfDialog) {
+    PdfReportDialog(
+      uiState = uiState,
+      onLoadAllSnapshots = onLoadAllSnapshots,
+      onDismiss = { showPdfDialog = false },
     )
   }
 
