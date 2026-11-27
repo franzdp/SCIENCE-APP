@@ -489,9 +489,9 @@
             "2 cm Mark"
           ],
           "correctIndices": [
-            0
+            1
           ],
-          "answerText": "Tiny subdivisions between 0 and 1"
+          "answerText": "Millimeter Ticks (1-9 mm) — tiny subdivisions between 0 and 1 cm"
         },
         {
           "id": "g3_t1_l02_q14",
@@ -655,14 +655,14 @@
           "type": "SORT_BUCKETS",
           "prompt": "Drag each item into the right disposal/care bin: Recycle (Paper/Plastic/Glass), Proper Waste (No Burning), or Reuse",
           "buckets": [
-            "Clean glass jar",
-            "Old newspapers",
-            "Excess oil container"
+            "Reuse",
+            "Recycle (Paper/Plastic/Glass)",
+            "Proper Waste (No Burning)"
           ],
           "cards": [
             {
               "text": "Clean glass jar",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Old newspapers",
@@ -670,10 +670,10 @@
             },
             {
               "text": "Excess cooking oil container",
-              "bucketIndex": 1
+              "bucketIndex": 2
             }
           ],
-          "answerText": "Clean glass jar = Reuse/Recycle; Old newspapers = Recycle; Excess oil container = Proper waste disposal, not burning"
+          "answerText": "Clean glass jar = Reuse; Old newspapers = Recycle (Paper/Plastic/Glass); Excess cooking oil container = Proper Waste (No Burning)"
         },
         {
           "id": "g3_t1_l03_q06",
@@ -1184,107 +1184,2483 @@
       ]
     },
     {
-      "id": "g3_t3_l05",
+      "id": "g3_t2_l01",
       "order": 5,
-      "title": "Objects in the Sky and Sun Safety",
+      "title": "Living and Non-Living Things Around Us",
       "grade": 3,
-      "term": 3,
-      "contentTopic": "Objects in the Sky & Sun Safety",
-      "weeks": "Weeks 8–11",
+      "term": 2,
+      "contentTopic": "Guided Science Activities Using Process Skills and Living and Non-Living Things",
+      "weeks": "Weeks 1–2",
       "questions": [
         {
-          "id": "g3_t3_l05_q01",
-          "type": "SORT_BUCKETS",
-          "prompt": "Drag each card into Mostly Daytime Sky or Mostly Nighttime Sky",
-          "buckets": [
-            "Daytime",
-            "Nighttime"
-          ],
-          "cards": [
-            {
-              "text": "Bright Sun",
-              "bucketIndex": 0
-            },
-            {
-              "text": "Stars and nighttime Moon",
-              "bucketIndex": 1
-            }
-          ],
-          "answerText": "Daytime = Bright Sun; Nighttime = Stars and nighttime Moon"
-        },
-        {
-          "id": "g3_t3_l05_q02",
+          "id": "g3_t2_l01_q01",
           "type": "MULTIPLE_CHOICE",
-          "prompt": "What do we notice when we observe the Sun, Moon, or stars at different times?",
+          "prompt": "Which three characteristics help identify something as a living thing?",
           "options": [
-            "They appear to change position / move across the sky over time",
-            "They turn into solid bricks",
-            "They fall onto the ground",
-            "They disappear forever at noon"
+            "It grows, responds to its environment, and reproduces",
+            "It is shiny, hard, and made of metal",
+            "It never changes size",
+            "It stays in a box forever"
           ],
           "correctIndex": 0,
-          "answerText": "A"
+          "answerText": "It grows, responds to its environment, and reproduces"
         },
         {
-          "id": "g3_t3_l05_q03",
+          "id": "g3_t2_l01_q02",
           "type": "TRUE_FALSE",
-          "prompt": "Natural objects in the sky can affect people's daily activities, such as daytime work, outdoor play, and nighttime travel/rest.",
+          "prompt": "A rock and a wooden chair are examples of non-living things.",
           "correctBool": true,
           "explanation": "",
           "answerText": "True"
         },
         {
-          "id": "g3_t3_l05_q04",
+          "id": "g3_t2_l01_q03",
           "type": "MULTI_SELECT",
-          "prompt": "Tap the sun safety measures to avoid harmful effects of the Sun's light:",
+          "prompt": "Click all living things you can observe around a schoolyard:",
+          "isPictureMode": true,
+          "items": [
+            "Growing seedling",
+            "Butterfly on a flower",
+            "Pebble on the path",
+            "Plastic bottle"
+          ],
+          "correctIndices": [
+            0,
+            1
+          ],
+          "answerText": "Growing seedling, Butterfly on a flower"
+        },
+        {
+          "id": "g3_t2_l01_q04",
+          "type": "MATCHING",
+          "prompt": "Match the characteristic of living things to an example",
+          "leftItems": [
+            "Growth",
+            "Response",
+            "Reproduction"
+          ],
+          "rightItems": [
+            "A seed sprouting and getting taller over days",
+            "A plant bending toward sunlight or an animal moving away from loud noise",
+            "A hen laying eggs that hatch into chicks"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Growth → A seed sprouting; Response → Bending toward sunlight/moving away from noise; Reproduction → Hen laying eggs"
+        },
+        {
+          "id": "g3_t2_l01_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each item into Living Things or Non-Living Things",
+          "buckets": [
+            "Living Things",
+            "Non-Living Things"
+          ],
+          "cards": [
+            {
+              "text": "Mango tree",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Earthworm",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Rainwater puddle",
+              "bucketIndex": 1
+            },
+            {
+              "text": "Concrete bench",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Living = Mango tree, Earthworm; Non-Living = Rainwater puddle, Concrete bench"
+        },
+        {
+          "id": "g3_t2_l01_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why is a sprouting mung bean seed classified as a living thing?",
+          "options": [
+            "It grows and develops over time",
+            "It is smooth like glass",
+            "It is made of iron",
+            "It cannot respond to water or light"
+          ],
+          "correctIndex": 0,
+          "answerText": "It grows and develops over time"
+        },
+        {
+          "id": "g3_t2_l01_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Non-living things can reproduce and make baby non-living things on their own.",
+          "correctBool": false,
+          "explanation": "Only living things can reproduce and make young of their own kind.",
+          "answerText": "False"
+        },
+        {
+          "id": "g3_t2_l01_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap all non-living things in the garden scene:",
           "isPictureMode": false,
           "items": [
-            "Wearing a hat or cap",
-            "Staying in the shade",
-            "Limiting long exposure in harsh midday sun"
+            "Garden soil",
+            "Clay flower pot",
+            "Watering can",
+            "Earthworm"
           ],
           "correctIndices": [
             0,
             1,
             2
           ],
-          "answerText": "All three"
+          "answerText": "Garden soil, Clay flower pot, Watering can"
         },
         {
-          "id": "g3_t3_l05_q05",
+          "id": "g3_t2_l01_q09",
           "type": "MATCHING",
-          "prompt": "Match the sky observation to what you record",
+          "prompt": "Match the observation to its group",
           "leftItems": [
-            "Position of the Sun in the morning vs. afternoon",
-            "Whether the Moon or stars are visible"
+            "Needs food/water and grows",
+            "Does not grow, eat, or reproduce"
           ],
           "rightItems": [
-            "How it appears to move across the sky",
-            "Daytime/nighttime sky observations"
+            "Living thing",
+            "Non-living thing"
           ],
           "correctPairs": {
             "0": 0,
             "1": 1
           },
-          "answerText": "1-A, 2-B"
+          "answerText": "Needs food/water and grows → Living thing; Does not grow, eat, or reproduce → Non-living thing"
+        },
+        {
+          "id": "g3_t2_l01_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "During a schoolyard sorting walk, what is a good way to organize your observations?",
+          "options": [
+            "A two-column T-chart labeled \"Living\" and \"Non-Living\"",
+            "Guessing without looking",
+            "Mixing all notes together with no labels",
+            "Throwing away the checklist"
+          ],
+          "correctIndex": 0,
+          "answerText": "A two-column T-chart labeled \"Living\" and \"Non-Living\""
+        },
+        {
+          "id": "g3_t2_l01_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Observing seeds over several days helps learners see growth in living things.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l01_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the picture showing growth in a living thing:",
+          "isPictureMode": true,
+          "items": [
+            "Seed → sprout → leafy young plant",
+            "Three identical pebbles"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Seed → sprout → leafy young plant"
+        },
+        {
+          "id": "g3_t2_l01_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap a living thing in the schoolyard scene",
+          "sceneTitle": "Schoolyard Scene",
+          "hotspots": [
+            "Bird on branch",
+            "Rock",
+            "Fence",
+            "Swing"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Bird on branch"
+        },
+        {
+          "id": "g3_t2_l01_q14",
+          "type": "MATCHING",
+          "prompt": "Match the term to its meaning",
+          "leftItems": [
+            "Reproduce",
+            "Respond",
+            "Grow"
+          ],
+          "rightItems": [
+            "Produce new young/offspring of the same kind",
+            "React to changes in the surroundings",
+            "Increase in size and develop over time"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Reproduce → Produce new young; Respond → React to surroundings; Grow → Increase in size"
+        },
+        {
+          "id": "g3_t2_l01_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which local example is a non-living thing?",
+          "options": [
+            "A stone beside a creek",
+            "A carabao",
+            "A banana plant",
+            "A frog"
+          ],
+          "correctIndex": 0,
+          "answerText": "A stone beside a creek"
+        },
+        {
+          "id": "g3_t2_l01_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Handling plants and small creatures gently is important during outdoor observations.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l01_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all characteristics of living things listed in Grade 3 Term 2:",
+          "isPictureMode": false,
+          "items": [
+            "They grow",
+            "They respond",
+            "They reproduce"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "They grow, They respond, They reproduce"
+        },
+        {
+          "id": "g3_t2_l01_q18",
+          "type": "ORDER_STEPS",
+          "prompt": "Order the stages observed during a seed growth activity",
+          "steps": [
+            "Dry seed",
+            "Tiny root/shoot emerges",
+            "Young plant with green leaves"
+          ],
+          "answerText": "1. Dry seed, 2. Tiny root/shoot emerges, 3. Young plant with green leaves"
+        },
+        {
+          "id": "g3_t2_l01_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "A toy car moves when pushed, so why is it still non-living?",
+          "options": [
+            "It does not grow, respond on its own, or reproduce",
+            "It has four wheels",
+            "It is painted red",
+            "It is small"
+          ],
+          "correctIndex": 0,
+          "answerText": "It does not grow, respond on its own, or reproduce"
+        },
+        {
+          "id": "g3_t2_l01_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Both living and non-living things are part of our local environment.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t2_l02",
+      "order": 6,
+      "title": "Outer Body Parts of Animals and Plants",
+      "grade": 3,
+      "term": 2,
+      "contentTopic": "Characteristics of Living Things",
+      "weeks": "Weeks 3–4",
+      "questions": [
+        {
+          "id": "g3_t2_l02_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which outer body parts help a bird fly from tree to tree?",
+          "options": [
+            "Wings",
+            "Roots",
+            "Stems",
+            "Fins"
+          ],
+          "correctIndex": 0,
+          "answerText": "Wings"
+        },
+        {
+          "id": "g3_t2_l02_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "Plant roots help absorb water and nutrients from the soil and anchor the plant.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l02_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all outer plant parts studied in Weeks 3–4:",
+          "isPictureMode": true,
+          "items": [
+            "Leaves",
+            "Roots",
+            "Stem",
+            "Wings"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Leaves, Roots, Stem"
+        },
+        {
+          "id": "g3_t2_l02_q04",
+          "type": "MATCHING",
+          "prompt": "Match the animal body part to its role",
+          "leftItems": [
+            "Legs",
+            "Wings",
+            "Head/mouth parts"
+          ],
+          "rightItems": [
+            "Walking, running, or jumping to move and find food",
+            "Flying in the air",
+            "Sensing surroundings and taking in food"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Legs → Walking/running/jumping; Wings → Flying in the air; Head/mouth parts → Sensing and taking in food"
+        },
+        {
+          "id": "g3_t2_l02_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each structure into Animal Body Part or Plant Outer Part",
+          "buckets": [
+            "Animal Body Part",
+            "Plant Outer Part"
+          ],
+          "cards": [
+            {
+              "text": "Wings and legs",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Roots, stem, and leaves",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Animal = Wings and legs; Plant = Roots, stem, and leaves"
+        },
+        {
+          "id": "g3_t2_l02_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What is the main role of a plant's stem?",
+          "options": [
+            "Holds up leaves and carries water and nutrients between roots and leaves",
+            "Chews food",
+            "Swims in rivers",
+            "Flaps like a wing"
+          ],
+          "correctIndex": 0,
+          "answerText": "Holds up leaves and carries water and nutrients between roots and leaves"
+        },
+        {
+          "id": "g3_t2_l02_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Leaves help plants capture sunlight to make food.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l02_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the outer animal body parts that help animals move or gather food:",
+          "isPictureMode": false,
+          "items": [
+            "Head",
+            "Legs",
+            "Wings"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Head, Legs, Wings"
+        },
+        {
+          "id": "g3_t2_l02_q09",
+          "type": "MATCHING",
+          "prompt": "Match the plant part to its function",
+          "leftItems": [
+            "Roots",
+            "Stem",
+            "Leaves"
+          ],
+          "rightItems": [
+            "Take in water and nutrients from soil",
+            "Supports the plant and transports water/nutrients",
+            "Capture light and help make food for the plant"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Roots → Take in water/nutrients; Stem → Supports and transports; Leaves → Capture light and make food"
+        },
+        {
+          "id": "g3_t2_l02_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How do a frog's strong back legs help it survive?",
+          "options": [
+            "They help it hop quickly on land and swim in water to catch food or escape",
+            "They absorb soil nutrients",
+            "They turn into leaves",
+            "They produce seeds"
+          ],
+          "correctIndex": 0,
+          "answerText": "They help it hop quickly on land and swim in water to catch food or escape"
+        },
+        {
+          "id": "g3_t2_l02_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "All animals use wings to move.",
+          "correctBool": false,
+          "explanation": "Many animals use legs, fins, tails, or their bodies instead of wings.",
+          "answerText": "False"
+        },
+        {
+          "id": "g3_t2_l02_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the labeled plant diagram showing leaves, stem, and roots:",
+          "isPictureMode": true,
+          "items": [
+            "Plant diagram with Leaves at top, Stem in middle, Roots underground"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Plant diagram with Leaves at top, Stem in middle, Roots underground"
+        },
+        {
+          "id": "g3_t2_l02_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the roots on the plant diagram",
+          "sceneTitle": "Interactive Plant Diagram",
+          "hotspots": [
+            "Leaves",
+            "Stem",
+            "Roots"
+          ],
+          "correctIndices": [
+            2
+          ],
+          "answerText": "Roots"
+        },
+        {
+          "id": "g3_t2_l02_q14",
+          "type": "MATCHING",
+          "prompt": "Match the animal to the outer part it uses most for movement",
+          "leftItems": [
+            "Bird",
+            "Dog/Goat",
+            "Fish"
+          ],
+          "rightItems": [
+            "Wings",
+            "Legs",
+            "Fins/tail"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Bird → Wings; Dog/Goat → Legs; Fish → Fins/tail"
+        },
+        {
+          "id": "g3_t2_l02_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What might happen to a plant if its leaves are all removed?",
+          "options": [
+            "It cannot capture light well to make food",
+            "It will grow wings",
+            "It will turn into an animal",
+            "Its roots will fly"
+          ],
+          "correctIndex": 0,
+          "answerText": "It cannot capture light well to make food"
+        },
+        {
+          "id": "g3_t2_l02_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Observing real plants and animal pictures helps us connect body parts to what they do.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l02_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all plant parts named in the Grade 3 competency:",
+          "isPictureMode": false,
+          "items": [
+            "Leaves",
+            "Roots",
+            "Stems"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Leaves, Roots, Stems"
+        },
+        {
+          "id": "g3_t2_l02_q18",
+          "type": "FILL_BLANK",
+          "prompt": "Complete the sentence: \"Plants get water and nutrients from the soil through their ______.\"",
+          "choices": [
+            "roots",
+            "wings",
+            "legs"
+          ],
+          "correctAnswers": [
+            "roots"
+          ],
+          "answerText": "roots"
+        },
+        {
+          "id": "g3_t2_l02_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why do animals have different outer body parts?",
+          "options": [
+            "Different body parts help each animal move and gather food in its own way",
+            "So they never need food",
+            "Because all animals live underground",
+            "So they cannot move"
+          ],
+          "correctIndex": 0,
+          "answerText": "Different body parts help each animal move and gather food in its own way"
+        },
+        {
+          "id": "g3_t2_l02_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Both plants and animals have specialized outer parts that help them live and grow.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t2_l03",
+      "order": 7,
+      "title": "Basic Needs of Living Things and Protecting the Environment",
+      "grade": 3,
+      "term": 2,
+      "contentTopic": "Basic Needs of Living Things",
+      "weeks": "Weeks 5–7",
+      "questions": [
+        {
+          "id": "g3_t2_l03_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which four items are the basic needs of all living things listed in Grade 3?",
+          "options": [
+            "Air, food, water, and shelter",
+            "Toys, television, candy, and shoes",
+            "Iron, gold, silver, and copper",
+            "Cars, roads, bridges, and clocks"
+          ],
+          "correctIndex": 0,
+          "answerText": "Air, food, water, and shelter"
+        },
+        {
+          "id": "g3_t2_l03_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "Living things depend on one another and on their environment to meet their basic needs.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l03_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all basic needs of animals and people:",
+          "isPictureMode": true,
+          "items": [
+            "Clean water",
+            "Nutritious food",
+            "Fresh air",
+            "Safe shelter"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Clean water, Nutritious food, Fresh air, Safe shelter"
+        },
+        {
+          "id": "g3_t2_l03_q04",
+          "type": "MATCHING",
+          "prompt": "Match the living thing to how it depends on another or the environment",
+          "leftItems": [
+            "Bird building a nest in a tree",
+            "Plant growing in soil and sunlight",
+            "Carabao eating grass"
+          ],
+          "rightItems": [
+            "Uses a tree for shelter",
+            "Uses environment for water, nutrients, air, and light",
+            "Depends on plants for food"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Bird → Uses tree for shelter; Plant → Uses soil/water/sunlight; Carabao → Depends on plants for food"
+        },
+        {
+          "id": "g3_t2_l03_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each card into Basic Need or Not a Basic Need",
+          "buckets": [
+            "Basic Need",
+            "Not a Basic Need"
+          ],
+          "cards": [
+            {
+              "text": "Air and water",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Food and shelter",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Video game console",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Basic Need = Air and water, Food and shelter; Not a Basic Need = Video game console"
+        },
+        {
+          "id": "g3_t2_l03_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why must we protect and conserve the environment?",
+          "options": [
+            "So living things can continue getting clean air, water, food, and shelter to survive",
+            "So plants stop growing",
+            "So rivers dry up",
+            "So animals lose their homes"
+          ],
+          "correctIndex": 0,
+          "answerText": "So living things can continue getting clean air, water, food, and shelter to survive"
+        },
+        {
+          "id": "g3_t2_l03_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Polluting rivers and cutting down all trees can make it hard for living things to meet their basic needs.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l03_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the actions that protect and conserve the environment:",
+          "isPictureMode": false,
+          "items": [
+            "Planting and caring for trees",
+            "Keeping waterways free of trash",
+            "Littering plastic in creeks"
+          ],
+          "correctIndices": [
+            0,
+            1
+          ],
+          "answerText": "Planting and caring for trees, Keeping waterways free of trash"
+        },
+        {
+          "id": "g3_t2_l03_q09",
+          "type": "MATCHING",
+          "prompt": "Match the basic need to why it is needed",
+          "leftItems": [
+            "Water",
+            "Food",
+            "Shelter"
+          ],
+          "rightItems": [
+            "Keeps living bodies hydrated and healthy",
+            "Gives energy to grow and move",
+            "Protects from harsh weather and danger"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Water → Hydrated and healthy; Food → Energy to grow and move; Shelter → Protects from weather and danger"
+        },
+        {
+          "id": "g3_t2_l03_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How do bees and flowering plants depend on each other?",
+          "options": [
+            "Bees get nectar/food from flowers while helping pollinate plants",
+            "Bees turn flowers into rocks",
+            "Flowers eat bees",
+            "They never interact"
+          ],
+          "correctIndex": 0,
+          "answerText": "Bees get nectar/food from flowers while helping pollinate plants"
+        },
+        {
+          "id": "g3_t2_l03_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Humans also depend on plants, animals, clean air, and water to survive.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l03_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the advocacy poster showing environmental care:",
+          "isPictureMode": true,
+          "items": [
+            "Children planting trees and sorting waste cleanly"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Children planting trees and sorting waste cleanly"
+        },
+        {
+          "id": "g3_t2_l03_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the shelter in the forest habitat scene",
+          "sceneTitle": "Interactive Habitat Scene",
+          "hotspots": [
+            "Bird nest in tree",
+            "Stream",
+            "Grass",
+            "Sun"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Bird nest in tree"
+        },
+        {
+          "id": "g3_t2_l03_q14",
+          "type": "MATCHING",
+          "prompt": "Match the problem to a helpful conservation action",
+          "leftItems": [
+            "Dirty/littered schoolyard",
+            "Wasted water from an open tap"
+          ],
+          "rightItems": [
+            "Pick up trash and sort recyclables",
+            "Turn off the tap tightly after use"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "Dirty schoolyard → Pick up trash & sort recyclables; Open tap → Turn off tightly"
+        },
+        {
+          "id": "g3_t2_l03_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which group lists only basic needs of living things?",
+          "options": [
+            "Air, water, food, shelter",
+            "Plastic, metal, glass, rubber",
+            "Pencil, ruler, paper, glue",
+            "Wind, rain, clouds, lightning"
+          ],
+          "correctIndex": 0,
+          "answerText": "Air, water, food, shelter"
+        },
+        {
+          "id": "g3_t2_l03_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "When habitats are destroyed, animals may lose both their food and their shelter.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l03_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all four basic needs from this list:",
+          "isPictureMode": false,
+          "items": [
+            "Air",
+            "Food",
+            "Water",
+            "Shelter"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Air, Food, Water, Shelter"
+        },
+        {
+          "id": "g3_t2_l03_q18",
+          "type": "SORT_BUCKETS",
+          "prompt": "Sort these into Helps Living Things Survive vs. Harms Living Things",
+          "buckets": [
+            "Helps Living Things Survive",
+            "Harms Living Things"
+          ],
+          "cards": [
+            {
+              "text": "Protecting forests and clean streams",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Dumping trash and smoke into the environment",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Helps = Protecting forests and clean streams; Harms = Dumping trash and smoke"
+        },
+        {
+          "id": "g3_t2_l03_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What happens to a plant kept in a dark sealed box with no air or water?",
+          "options": [
+            "It cannot meet its basic needs and will wilt or die",
+            "It grows twice as fast",
+            "It turns into a bird",
+            "It becomes a rock"
+          ],
+          "correctIndex": 0,
+          "answerText": "It cannot meet its basic needs and will wilt or die"
+        },
+        {
+          "id": "g3_t2_l03_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Every person can help care for the environment through small daily habits.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t2_l04",
+      "order": 8,
+      "title": "How Objects Move and What Affects Movement",
+      "grade": 3,
+      "term": 2,
+      "contentTopic": "Exploring and Questioning",
+      "weeks": "Weeks 8–10",
+      "questions": [
+        {
+          "id": "g3_t2_l04_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which are natural causes that can make objects move in our environment?",
+          "options": [
+            "Wind and flowing water",
+            "Pushing with your hand",
+            "Pulling a wagon",
+            "Carrying a basket"
+          ],
+          "correctIndex": 0,
+          "answerText": "Wind and flowing water"
+        },
+        {
+          "id": "g3_t2_l04_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "People can make objects move by pushing, pulling, rolling, and carrying them.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l04_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all ways people make objects move:",
+          "isPictureMode": true,
+          "items": [
+            "Pushing a cart",
+            "Pulling a rope",
+            "Rolling a ball",
+            "Carrying a box"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Pushing a cart, Pulling a rope, Rolling a ball, Carrying a box"
+        },
+        {
+          "id": "g3_t2_l04_q04",
+          "type": "MATCHING",
+          "prompt": "Match what causes the movement to the example",
+          "leftItems": [
+            "Wind",
+            "Flowing water",
+            "Pushing/pulling"
+          ],
+          "rightItems": [
+            "Blowing dry leaves or a pinwheel",
+            "Carrying a paper boat downstream",
+            "Opening or closing a classroom door"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Wind → Blowing leaves/pinwheel; Flowing water → Paper boat downstream; Pushing/pulling → Opening/closing door"
+        },
+        {
+          "id": "g3_t2_l04_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each movement cause into Natural Cause or By People",
+          "buckets": [
+            "Natural Cause",
+            "By People"
+          ],
+          "cards": [
+            {
+              "text": "Wind blowing a kite",
+              "bucketIndex": 0
+            },
+            {
+              "text": "River water moving twigs",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Rolling a marble or carrying a bag",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Natural = Wind blowing a kite, River water moving twigs; By People = Rolling a marble or carrying a bag"
+        },
+        {
+          "id": "g3_t2_l04_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which factor makes a box harder to slide across the floor?",
+          "options": [
+            "Greater heaviness and a rough surface texture",
+            "A very smooth surface",
+            "Making the box lighter",
+            "Using round wheels"
+          ],
+          "correctIndex": 0,
+          "answerText": "Greater heaviness and a rough surface texture"
+        },
+        {
+          "id": "g3_t2_l04_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "The shape of an object (such as round vs. flat-sided) affects whether it rolls easily.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l04_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the properties listed in Grade 3 that affect how objects move:",
+          "isPictureMode": false,
+          "items": [
+            "Size and shape",
+            "Heaviness",
+            "Material and surface texture"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Size and shape, Heaviness, Material and surface texture"
+        },
+        {
+          "id": "g3_t2_l04_q09",
+          "type": "MATCHING",
+          "prompt": "Match the factor to how it affects movement",
+          "leftItems": [
+            "Round shape (like a ball)",
+            "Rough surface texture",
+            "Heavy object"
+          ],
+          "rightItems": [
+            "Rolls easily when pushed",
+            "Slows down sliding objects faster",
+            "Needs a stronger push or pull to start moving"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Round shape → Rolls easily; Rough texture → Slows down sliding objects; Heavy object → Needs stronger push/pull"
+        },
+        {
+          "id": "g3_t2_l04_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "If you blow gently on a light ping-pong ball and a heavy rock, which one moves more easily?",
+          "options": [
+            "The light ping-pong ball",
+            "The heavy rock",
+            "Both move the exact same distance",
+            "Neither can ever move"
+          ],
+          "correctIndex": 0,
+          "answerText": "The light ping-pong ball"
+        },
+        {
+          "id": "g3_t2_l04_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Surface texture has no effect on how far a toy car rolls.",
+          "correctBool": false,
+          "explanation": "Rough textures slow rolling/sliding objects down faster than smooth surfaces.",
+          "answerText": "False"
+        },
+        {
+          "id": "g3_t2_l04_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the object that will roll easiest on a flat table:",
+          "isPictureMode": true,
+          "items": [
+            "Smooth round ball",
+            "Heavy square brick"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Smooth round ball"
+        },
+        {
+          "id": "g3_t2_l04_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the natural force moving the sailboat in the picture",
+          "sceneTitle": "Coastal Sailboat Scene",
+          "hotspots": [
+            "Wind",
+            "Sailboat",
+            "Water waves",
+            "Sky"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Wind"
+        },
+        {
+          "id": "g3_t2_l04_q14",
+          "type": "MATCHING",
+          "prompt": "Match the action to its movement word",
+          "leftItems": [
+            "Moving an object away from you",
+            "Bringing an object toward you",
+            "Lifting and transporting an object"
+          ],
+          "rightItems": [
+            "Pushing",
+            "Pulling",
+            "Carrying"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Away → Pushing; Toward → Pulling; Lifting & transporting → Carrying"
+        },
+        {
+          "id": "g3_t2_l04_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why does a wooden block slide farther on smooth tile than on rough sandpaper?",
+          "options": [
+            "Smooth tile has less surface roughness than sandpaper",
+            "The block gets lighter on tile",
+            "Sandpaper turns into water",
+            "Tile has no gravity"
+          ],
+          "correctIndex": 0,
+          "answerText": "Smooth tile has less surface roughness than sandpaper"
+        },
+        {
+          "id": "g3_t2_l04_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Size, shape, heaviness, material, and surface texture all influence how an object moves.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l04_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all ways people move objects named in Week 8:",
+          "isPictureMode": false,
+          "items": [
+            "Pushing",
+            "Pulling",
+            "Rolling",
+            "Carrying"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Pushing, Pulling, Rolling, Carrying"
+        },
+        {
+          "id": "g3_t2_l04_q18",
+          "type": "SORT_BUCKETS",
+          "prompt": "Sort these into Moves Easily with a Light Push vs. Needs a Stronger Push",
+          "buckets": [
+            "Moves Easily with a Light Push",
+            "Needs a Stronger Push"
+          ],
+          "cards": [
+            {
+              "text": "Light empty plastic cup",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Heavy box full of books",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Light Push = Light empty plastic cup; Stronger Push = Heavy box full of books"
+        },
+        {
+          "id": "g3_t2_l04_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "In a station activity testing how surface texture affects movement, what should you keep the same?",
+          "options": [
+            "Use the same object and the same gentle push on each surface",
+            "Use a feather on one and a brick on another",
+            "Kick one and blow on the other",
+            "Guess without testing"
+          ],
+          "correctIndex": 0,
+          "answerText": "Use the same object and the same gentle push on each surface"
+        },
+        {
+          "id": "g3_t2_l04_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Asking questions and testing objects helps us discover patterns in how things move.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t2_l05",
+      "order": 9,
+      "title": "Describing and Measuring Changes in Position",
+      "grade": 3,
+      "term": 2,
+      "contentTopic": "Moving Objects",
+      "weeks": "Week 11",
+      "questions": [
+        {
+          "id": "g3_t2_l05_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How can you tell that an object has moved?",
+          "options": [
+            "Its position changed compared to its starting spot or a reference object",
+            "It stayed in the exact same place",
+            "It changed color only",
+            "It made a sound without moving"
+          ],
+          "correctIndex": 0,
+          "answerText": "Its position changed compared to its starting spot or a reference object"
+        },
+        {
+          "id": "g3_t2_l05_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "Words like closer, farther, left, and right help describe changes in position.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l05_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all position words used to describe where an object moved relative to its original spot:",
+          "isPictureMode": true,
+          "items": [
+            "Arrow moving Left",
+            "Arrow moving Right",
+            "Arrow moving Closer / Farther"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Arrow moving Left, Arrow moving Right, Arrow moving Closer / Farther"
+        },
+        {
+          "id": "g3_t2_l05_q04",
+          "type": "MATCHING",
+          "prompt": "Match the movement description to what happened",
+          "leftItems": [
+            "Moved closer",
+            "Moved farther",
+            "Moved left/right"
+          ],
+          "rightItems": [
+            "Distance from the starting point or observer decreased",
+            "Distance from the starting point or observer increased",
+            "Shifted sideways from the original position"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Moved closer → Distance decreased; Moved farther → Distance increased; Moved left/right → Shifted sideways"
+        },
+        {
+          "id": "g3_t2_l05_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each label to the right spot around the Starting Cone",
+          "buckets": [
+            "Side to your left of the cone",
+            "Side to your right of the cone",
+            "Nearer to viewer/start",
+            "Further away from start"
+          ],
+          "cards": [
+            {
+              "text": "Left",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Right",
+              "bucketIndex": 1
+            },
+            {
+              "text": "Closer",
+              "bucketIndex": 2
+            },
+            {
+              "text": "Farther",
+              "bucketIndex": 3
+            }
+          ],
+          "answerText": "Left = left side; Right = right side; Closer = nearer to viewer/start; Farther = further away"
+        },
+        {
+          "id": "g3_t2_l05_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "A toy car starts at the 0 cm mark and stops at the 35 cm mark. How far did its position change?",
+          "options": [
+            "35 cm farther from the start",
+            "0 cm",
+            "35 meters closer",
+            "It did not move"
+          ],
+          "correctIndex": 0,
+          "answerText": "35 cm farther from the start"
+        },
+        {
+          "id": "g3_t2_l05_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Using a starting line or reference point makes measuring changes in position accurate.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l05_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the tools you can use to measure how far a person or object moved:",
+          "isPictureMode": false,
+          "items": [
+            "Ruler",
+            "Meterstick",
+            "Measuring tape"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Ruler, Meterstick, Measuring tape"
+        },
+        {
+          "id": "g3_t2_l05_q09",
+          "type": "MATCHING",
+          "prompt": "Match the original position and new position to the change",
+          "leftItems": [
+            "Book was 10 cm away, now 40 cm away",
+            "Ball was 50 cm away, now 20 cm away"
+          ],
+          "rightItems": [
+            "Moved 30 cm farther",
+            "Moved 30 cm closer"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "10 cm → 40 cm = Moved 30 cm farther; 50 cm → 20 cm = Moved 30 cm closer"
+        },
+        {
+          "id": "g3_t2_l05_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "If you step two paces to your right from a chalk X on the floor, what is your reference point?",
+          "options": [
+            "The chalk X on the floor",
+            "A cloud in the sky",
+            "Tomorrow's lunch",
+            "A book in another room"
+          ],
+          "correctIndex": 0,
+          "answerText": "The chalk X on the floor"
+        },
+        {
+          "id": "g3_t2_l05_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Saying \"the ball moved 20 cm to the left of the cone\" describes both distance and direction.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l05_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the diagram showing a toy car that moved farther from the starting flag:",
+          "isPictureMode": true,
+          "items": [
+            "Car at 50 cm mark away from flag",
+            "Car sitting at 0 cm flag"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Car at 50 cm mark away from flag"
+        },
+        {
+          "id": "g3_t2_l05_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the spot that is to the right of the center marker",
+          "sceneTitle": "Interactive Position Grid",
+          "hotspots": [
+            "Left Spot",
+            "Center Marker",
+            "Right Spot"
+          ],
+          "correctIndices": [
+            2
+          ],
+          "answerText": "Right Spot"
+        },
+        {
+          "id": "g3_t2_l05_q14",
+          "type": "MATCHING",
+          "prompt": "Match the phrase to the question it answers",
+          "leftItems": [
+            "\"How far did it move?\"",
+            "\"Which way did it move?\""
+          ],
+          "rightItems": [
+            "25 centimeters",
+            "To the left / farther away"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "How far? → 25 centimeters; Which way? → To the left / farther away"
+        },
+        {
+          "id": "g3_t2_l05_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Two learners stand facing the board. Learner A steps forward toward the board; Learner B steps backward away from the board. Who is closer to the board now?",
+          "options": [
+            "Learner A",
+            "Learner B",
+            "Neither",
+            "Both are on the ceiling"
+          ],
+          "correctIndex": 0,
+          "answerText": "Learner A"
+        },
+        {
+          "id": "g3_t2_l05_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Without knowing the original position, it is harder to describe how much an object moved.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t2_l05_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all position/direction words named in Week 11:",
+          "isPictureMode": false,
+          "items": [
+            "Closer",
+            "Farther",
+            "Left",
+            "Right"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Closer, Farther, Left, Right"
+        },
+        {
+          "id": "g3_t2_l05_q18",
+          "type": "SLIDER",
+          "prompt": "Move the marker 30 cm to the right of the 0 cm mark on the ruler/number line.",
+          "minValue": -40,
+          "maxValue": 40,
+          "targetValue": 30,
+          "unit": "cm",
+          "answerText": "Marker placed at 30 cm to the right (+30 cm)"
+        },
+        {
+          "id": "g3_t2_l05_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which sentence best describes a measured change in position?",
+          "options": [
+            "\"The marble rolled 45 cm farther to the right of the starting line.\"",
+            "\"The marble is round.\"",
+            "\"Marbles are made of glass.\"",
+            "\"I like marbles.\""
+          ],
+          "correctIndex": 0,
+          "answerText": "\"The marble rolled 45 cm farther to the right of the starting line.\""
+        },
+        {
+          "id": "g3_t2_l05_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Measuring and describing position changes helps us explain everyday motion clearly.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t3_l01",
+      "order": 10,
+      "title": "Sources, Uses, Communication, and Safety of Light and Sound",
+      "grade": 3,
+      "term": 3,
+      "contentTopic": "Light and Sounds",
+      "weeks": "Weeks 1–5",
+      "questions": [
+        {
+          "id": "g3_t3_l01_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How is sound made when you ring a bell or pluck a rubber band?",
+          "options": [
+            "By vibrations that travel through air/materials to our ears",
+            "By freezing water",
+            "By shining a flashlight",
+            "By folding paper"
+          ],
+          "correctIndex": 0,
+          "answerText": "By vibrations that travel through air/materials to our ears"
+        },
+        {
+          "id": "g3_t3_l01_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "The Sun is a natural source of light, while a flashlight or electric bulb is a man-made (artificial) source of light.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l01_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all sources of light used in everyday situations:",
+          "isPictureMode": true,
+          "items": [
+            "The Sun",
+            "Flashlight",
+            "Candle/lamp",
+            "Wooden spoon"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "The Sun, Flashlight, Candle/lamp"
+        },
+        {
+          "id": "g3_t3_l01_q04",
+          "type": "MATCHING",
+          "prompt": "Match the sound or light example to its everyday use",
+          "leftItems": [
+            "School bell / alarm",
+            "Traffic light / flashlight",
+            "Waving flags / hand signals"
+          ],
+          "rightItems": [
+            "Uses sound to signal time or alert people",
+            "Uses light to guide, warn, or help people see in the dark",
+            "Uses movement to send a message between two people"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "School bell → Sound signal; Traffic light/flashlight → Light to guide/see; Waving flags → Movement message"
+        },
+        {
+          "id": "g3_t3_l01_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each source into Natural Light Source or Artificial (Man-Made) Light Source",
+          "buckets": [
+            "Natural Light Source",
+            "Artificial (Man-Made) Light Source"
+          ],
+          "cards": [
+            {
+              "text": "Sun and stars",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Electric lamp and flashlight",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Natural = Sun and stars; Artificial = Electric lamp and flashlight"
+        },
+        {
+          "id": "g3_t3_l01_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which behavior shows how light can be changed or blocked?",
+          "options": [
+            "An opaque object blocks light to form a shadow, or a mirror reflects light",
+            "Light turns into a rock",
+            "Light makes heavy objects float",
+            "Light freezes into ice"
+          ],
+          "correctIndex": 0,
+          "answerText": "An opaque object blocks light to form a shadow, or a mirror reflects light"
+        },
+        {
+          "id": "g3_t3_l01_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Looking directly at the bright Sun or listening to very loud noises can harm your eyes and ears.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l01_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the ways people can send information between two people listed in Grade 3:",
+          "isPictureMode": false,
+          "items": [
+            "Movement (hand/flag signals)",
+            "Sound (bells/whistles/claps)",
+            "Light (flashlights/blinking signals)"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Movement, Sound, Light"
+        },
+        {
+          "id": "g3_t3_l01_q09",
+          "type": "MATCHING",
+          "prompt": "Match the hazard to the best safety action",
+          "leftItems": [
+            "Very bright sunlight",
+            "Very loud sounds/music"
+          ],
+          "rightItems": [
+            "Wear a wide-brimmed hat/sunglasses and never stare at the Sun",
+            "Lower the volume, move away, or cover/protect ears"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "Bright sunlight → Wear hat/sunglasses & never stare at Sun; Loud sounds → Lower volume/move away/protect ears"
+        },
+        {
+          "id": "g3_t3_l01_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "If you want to send a secret signal to a classmate 5 meters away across a quiet room without walking over, which method works well?",
+          "options": [
+            "Flashing a flashlight code or using a clear hand signal",
+            "Whispering into a pillow",
+            "Dropping a rock on your foot",
+            "Closing your eyes"
+          ],
+          "correctIndex": 0,
+          "answerText": "Flashing a flashlight code or using a clear hand signal"
+        },
+        {
+          "id": "g3_t3_l01_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Sound can travel through air so we can hear voices, bells, and music.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l01_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the picture showing protecting ears or eyes from harmful sound or light:",
+          "isPictureMode": true,
+          "items": [
+            "Child lowering headphone volume / wearing sun hat outdoors"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Child lowering headphone volume / wearing sun hat outdoors"
+        },
+        {
+          "id": "g3_t3_l01_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the source of sound in the classroom scene",
+          "sceneTitle": "Classroom Scene",
+          "hotspots": [
+            "Ringing school bell",
+            "Book",
+            "Chair",
+            "Window"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Ringing school bell"
+        },
+        {
+          "id": "g3_t3_l01_q14",
+          "type": "MATCHING",
+          "prompt": "Match the term to its description",
+          "leftItems": [
+            "Light source",
+            "Shadow",
+            "Vibration"
+          ],
+          "rightItems": [
+            "Something that gives off light",
+            "Dark area formed when an object blocks light",
+            "Rapid back-and-forth movement that produces sound"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Light source → Gives off light; Shadow → Dark area when light is blocked; Vibration → Rapid movement making sound"
+        },
+        {
+          "id": "g3_t3_l01_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which everyday object is a source of sound?",
+          "options": [
+            "A ringing telephone or drum",
+            "A glass of water sitting still",
+            "A rubber eraser",
+            "A brick wall"
+          ],
+          "correctIndex": 0,
+          "answerText": "A ringing telephone or drum"
+        },
+        {
+          "id": "g3_t3_l01_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "People can modify and use light and sound in helpful ways, such as lamps for reading and sirens for emergencies.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l01_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all protective habits for eyes and ears:",
+          "isPictureMode": false,
+          "items": [
+            "Never look directly at the Sun",
+            "Keep volume at a safe level",
+            "Wear a hat/shade in bright sun"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Never look directly at the Sun, Keep volume at a safe level, Wear a hat/shade in bright sun"
+        },
+        {
+          "id": "g3_t3_l01_q18",
+          "type": "ORDER_STEPS",
+          "prompt": "Order how a bell sound reaches your ears",
+          "steps": [
+            "Bell vibrates when struck",
+            "Sound travels through the air",
+            "Ears detect the sound"
+          ],
+          "answerText": "1. Bell vibrates when struck, 2. Sound travels through the air, 3. Ears detect the sound"
+        },
+        {
+          "id": "g3_t3_l01_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why do emergency vehicles use both flashing lights and loud sirens?",
+          "options": [
+            "Light and sound signals quickly alert people from a distance to stay safe",
+            "To make cars go faster",
+            "To change the weather",
+            "To turn night into day"
+          ],
+          "correctIndex": 0,
+          "answerText": "Light and sound signals quickly alert people from a distance to stay safe"
+        },
+        {
+          "id": "g3_t3_l01_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Light and sound are forms of energy that affect our daily lives.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t3_l02",
+      "order": 11,
+      "title": "Non-Living Earth Materials and Useful Products",
+      "grade": 3,
+      "term": 3,
+      "contentTopic": "The Non-Living Environment",
+      "weeks": "Weeks 6–7",
+      "questions": [
+        {
+          "id": "g3_t3_l02_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What term refers to the non-living materials that make up the Earth's environment, such as rocks, soil, water, air, and metals?",
+          "options": [
+            "Earth materials",
+            "Living organisms",
+            "Food chains",
+            "Animal habitats"
+          ],
+          "correctIndex": 0,
+          "answerText": "Earth materials"
+        },
+        {
+          "id": "g3_t3_l02_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "Rocks, soil, water, air, metals, clouds, rain, and sunlight are non-living things found in our environment.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l02_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all non-living Earth materials listed in Grade 3 Term 3:",
+          "isPictureMode": true,
+          "items": [
+            "Rocks and soil",
+            "Water and rain",
+            "Metals",
+            "Sunflower plant"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Rocks and soil, Water and rain, Metals"
+        },
+        {
+          "id": "g3_t3_l02_q04",
+          "type": "MATCHING",
+          "prompt": "Match the useful object people make to the natural non-living material used",
+          "leftItems": [
+            "Clay pot / hollow blocks",
+            "Cooking pot / gate / wire",
+            "Window pane / glass jar"
+          ],
+          "rightItems": [
+            "Soil / clay / sand and rock materials",
+            "Metals (like iron, aluminum, copper)",
+            "Sand/silica melted and shaped into glass"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Clay pot/hollow blocks → Soil/clay/sand & rock; Cooking pot/gate/wire → Metals; Window pane/glass jar → Sand/silica glass"
+        },
+        {
+          "id": "g3_t3_l02_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each item into Natural Earth Material or Made by People from Earth Materials",
+          "buckets": [
+            "Natural Earth Material",
+            "Made by People from Earth Materials"
+          ],
+          "cards": [
+            {
+              "text": "Raw rock, soil, metal ore, water",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Clay pot, metal spoon, concrete wall",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Natural = Raw rock, soil, metal ore, water; Made by People = Clay pot, metal spoon, concrete wall"
+        },
+        {
+          "id": "g3_t3_l02_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which non-living thing in the sky provides warmth and light to Earth?",
+          "options": [
+            "Sunlight",
+            "Rocks",
+            "Soil",
+            "Iron nails"
+          ],
+          "correctIndex": 0,
+          "answerText": "Sunlight"
+        },
+        {
+          "id": "g3_t3_l02_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "People use non-living Earth materials to make many useful tools, buildings, and containers.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l02_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap all non-living things listed in Week 6:",
+          "isPictureMode": false,
+          "items": [
+            "Rocks & soil",
+            "Water & air",
+            "Metals, clouds, rain, & sunlight"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Rocks & soil, Water & air, Metals, clouds, rain, & sunlight"
+        },
+        {
+          "id": "g3_t3_l02_q09",
+          "type": "MATCHING",
+          "prompt": "Match the Earth material to an everyday use",
+          "leftItems": [
+            "Water",
+            "Soil",
+            "Metals"
+          ],
+          "rightItems": [
+            "Drinking, washing, and watering crops",
+            "Growing plants and making pottery/bricks",
+            "Making sturdy tools, utensils, and wires"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Water → Drinking/washing/crops; Soil → Growing plants & pottery/bricks; Metals → Tools, utensils, & wires"
+        },
+        {
+          "id": "g3_t3_l02_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why are rocks and gravel useful in building roads and houses?",
+          "options": [
+            "They are hard and strong",
+            "They evaporate into air",
+            "They grow leaves",
+            "They melt in rain"
+          ],
+          "correctIndex": 0,
+          "answerText": "They are hard and strong"
+        },
+        {
+          "id": "g3_t3_l02_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Clouds and rain are living animals that fly in the sky.",
+          "correctBool": false,
+          "explanation": "Clouds and rain are non-living Earth materials made of water droplets/ice in the sky.",
+          "answerText": "False"
+        },
+        {
+          "id": "g3_t3_l02_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the picture showing a useful product made from soil/clay:",
+          "isPictureMode": true,
+          "items": [
+            "Terracotta clay pot",
+            "Wild bird"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Terracotta clay pot"
+        },
+        {
+          "id": "g3_t3_l02_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap any non-living Earth material in the outdoor scene",
+          "sceneTitle": "Outdoor Landscape Scene",
+          "hotspots": [
+            "Stream water",
+            "Rocks",
+            "Soil",
+            "Clouds"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "answerText": "Any of stream water, rocks, soil, or clouds (all are non-living Earth materials)"
+        },
+        {
+          "id": "g3_t3_l02_q14",
+          "type": "MATCHING",
+          "prompt": "Match the product to its source material",
+          "leftItems": [
+            "Metal spoon",
+            "Brick / clay jar",
+            "Gravel path"
+          ],
+          "rightItems": [
+            "Metal",
+            "Clay/soil",
+            "Rocks"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Metal spoon → Metal; Brick / clay jar → Clay/soil; Gravel path → Rocks"
+        },
+        {
+          "id": "g3_t3_l02_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What do we call non-living materials like rocks, soil, water, air, and metals that make up our natural environment?",
+          "options": [
+            "Earth materials",
+            "Vertebrates",
+            "Herbivores",
+            "Constellations"
+          ],
+          "correctIndex": 0,
+          "answerText": "Earth materials"
+        },
+        {
+          "id": "g3_t3_l02_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Air is a non-living Earth material all around us even though we cannot see it.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l02_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all items made from non-living Earth materials:",
+          "isPictureMode": false,
+          "items": [
+            "Ceramic mug/clay pot",
+            "Iron nail",
+            "Concrete block"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Ceramic mug/clay pot, Iron nail, Concrete block"
+        },
+        {
+          "id": "g3_t3_l02_q18",
+          "type": "SORT_BUCKETS",
+          "prompt": "Sort these into Living vs. Non-Living Earth Material",
+          "buckets": [
+            "Living",
+            "Non-Living Earth Material"
+          ],
+          "cards": [
+            {
+              "text": "Grass and butterfly",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Rocks, water, and air",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Living = Grass and butterfly; Non-Living = Rocks, water, and air"
+        },
+        {
+          "id": "g3_t3_l02_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How can learners explore non-living things around their school?",
+          "options": [
+            "Go on a guided walk to locate and describe rocks, soil, water, air, metals, clouds, and sunlight",
+            "Stay inside with eyes closed",
+            "Guess without observing",
+            "Ignore surroundings"
+          ],
+          "correctIndex": 0,
+          "answerText": "Go on a guided walk to locate and describe rocks, soil, water, air, metals, clouds, and sunlight"
+        },
+        {
+          "id": "g3_t3_l02_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Using Earth materials wisely helps conserve natural resources for the future.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t3_l03",
+      "order": 12,
+      "title": "Observing Weather Patterns, Daily Life, and Weather Safety",
+      "grade": 3,
+      "term": 3,
+      "contentTopic": "Patterns in the Weather",
+      "weeks": "Week 8",
+      "questions": [
+        {
+          "id": "g3_t3_l03_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which set lists common types of weather you can observe in your local area?",
+          "options": [
+            "Sunny, cloudy, windy, and rainy",
+            "Solid, liquid, and gas",
+            "Push, pull, and roll",
+            "Root, stem, and leaf"
+          ],
+          "correctIndex": 0,
+          "answerText": "Sunny, cloudy, windy, and rainy"
+        },
+        {
+          "id": "g3_t3_l03_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "Observing and recording the weather over several days helps reveal local weather patterns.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l03_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all weather conditions that affect daily activities:",
+          "isPictureMode": true,
+          "items": [
+            "Bright sunny day",
+            "Heavy rain with dark clouds",
+            "Strong gusty wind"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Bright sunny day, Heavy rain with dark clouds, Strong gusty wind"
+        },
+        {
+          "id": "g3_t3_l03_q04",
+          "type": "MATCHING",
+          "prompt": "Match the weather type to how it affects daily activities",
+          "leftItems": [
+            "Sunny and warm",
+            "Rainy",
+            "Stormy / very windy"
+          ],
+          "rightItems": [
+            "Good for drying clothes and outdoor play (with sun protection)",
+            "Need umbrellas/raincoats; outdoor games may move indoors",
+            "Dangerous to travel or stay outdoors; stay safely inside"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Sunny → Drying clothes/outdoor play; Rainy → Umbrellas/indoors; Stormy → Dangerous, stay safely inside"
+        },
+        {
+          "id": "g3_t3_l03_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each activity into Safe in Sunny Weather or Safe in Rainy/Stormy Weather",
+          "buckets": [
+            "Safe in Sunny Weather",
+            "Safe in Rainy/Stormy Weather"
+          ],
+          "cards": [
+            {
+              "text": "Wearing a hat and drinking plenty of water outside",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Staying indoors away from floods and lightning during heavy storms",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Sunny = Wearing a hat & drinking water; Rainy/Stormy = Staying indoors away from floods/lightning"
+        },
+        {
+          "id": "g3_t3_l03_q06",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why can some types of weather be dangerous for people?",
+          "options": [
+            "Heavy rain can cause flooding/slippery roads, and strong winds or lightning can cause injury",
+            "Sunny weather turns water into metal",
+            "Clouds eat houses",
+            "Wind stops people from breathing"
+          ],
+          "correctIndex": 0,
+          "answerText": "Heavy rain can cause flooding/slippery roads, and strong winds or lightning can cause injury"
+        },
+        {
+          "id": "g3_t3_l03_q07",
+          "type": "TRUE_FALSE",
+          "prompt": "Wading or playing in deep floodwaters during heavy rain is safe.",
+          "correctBool": false,
+          "explanation": "Floodwaters can hide hazards, carry fast currents, and spread illness.",
+          "answerText": "False"
+        },
+        {
+          "id": "g3_t3_l03_q08",
+          "type": "MULTI_SELECT",
+          "prompt": "Tap the items helpful for recording daily weather observations over 5 to 7 days:",
+          "isPictureMode": false,
+          "items": [
+            "Weather observation chart/calendar",
+            "Weather symbols (sun, cloud, rain, wind)"
+          ],
+          "correctIndices": [
+            0,
+            1
+          ],
+          "answerText": "Weather observation chart/calendar, Weather symbols (sun, cloud, rain, wind)"
+        },
+        {
+          "id": "g3_t3_l03_q09",
+          "type": "MATCHING",
+          "prompt": "Match the weather symbol to its description",
+          "leftItems": [
+            "Bright sun",
+            "Dark cloud with raindrops",
+            "Bending trees/swirling lines"
+          ],
+          "rightItems": [
+            "Sunny/clear sky",
+            "Rainy weather",
+            "Windy weather"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "Bright sun → Sunny/clear sky; Dark cloud with raindrops → Rainy weather; Bending trees/swirling lines → Windy weather"
+        },
+        {
+          "id": "g3_t3_l03_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "How do farmers, fishers, and travelers use weather observations?",
+          "options": [
+            "To plan safe times for planting, harvesting, sailing, or traveling",
+            "To change the size of the Moon",
+            "To make rocks grow",
+            "To stop gravity"
+          ],
+          "correctIndex": 0,
+          "answerText": "To plan safe times for planting, harvesting, sailing, or traveling"
+        },
+        {
+          "id": "g3_t3_l03_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Weather can change from morning to afternoon on the very same day.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l03_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the picture showing weather safety during heavy rain:",
+          "isPictureMode": true,
+          "items": [
+            "Child using an umbrella/raincoat and avoiding flooded streets"
+          ],
+          "correctIndices": [
+            0
+          ],
+          "answerText": "Child using an umbrella/raincoat and avoiding flooded streets"
+        },
+        {
+          "id": "g3_t3_l03_q13",
+          "type": "HOTSPOT",
+          "prompt": "Tap the stormy/dangerous weather panel in the 4-day weather chart",
+          "sceneTitle": "4-Day Weather Chart",
+          "hotspots": [
+            "Day 1 Sunny",
+            "Day 2 Partly Cloudy",
+            "Day 3 Light Breeze",
+            "Day 4 Heavy Rain & Strong Wind"
+          ],
+          "correctIndices": [
+            3
+          ],
+          "answerText": "Day 4 Heavy Rain & Strong Wind"
+        },
+        {
+          "id": "g3_t3_l03_q14",
+          "type": "MATCHING",
+          "prompt": "Match the precaution to the weather hazard",
+          "leftItems": [
+            "Strong typhoon/storm winds",
+            "Extreme heat/sunshine"
+          ],
+          "rightItems": [
+            "Stay indoors away from windows and falling branches",
+            "Stay hydrated and rest in shade"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "Strong winds → Stay indoors away from windows; Extreme heat → Stay hydrated and rest in shade"
+        },
+        {
+          "id": "g3_t3_l03_q15",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What should you record on a 5-to-7-day weather log?",
+          "options": [
+            "Date/time, sky/cloud condition, rain, wind, and how warm/cool it feels",
+            "Only your favorite color",
+            "The weight of your backpack",
+            "Names of planets"
+          ],
+          "correctIndex": 0,
+          "answerText": "Date/time, sky/cloud condition, rain, wind, and how warm/cool it feels"
+        },
+        {
+          "id": "g3_t3_l03_q16",
+          "type": "TRUE_FALSE",
+          "prompt": "Checking weather updates helps families stay safe during bad weather.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l03_q17",
+          "type": "MULTI_SELECT",
+          "prompt": "Choose all daily activities affected by weather:",
+          "isPictureMode": false,
+          "items": [
+            "Walking to school",
+            "Drying laundry or crops",
+            "Outdoor sports and fishing"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Walking to school, Drying laundry or crops, Outdoor sports and fishing"
+        },
+        {
+          "id": "g3_t3_l03_q18",
+          "type": "ORDER_STEPS",
+          "prompt": "Order how you complete a weekly weather observation task",
+          "steps": [
+            "Observe the sky, wind, and rain each day",
+            "Record observations on a chart",
+            "Describe patterns noticed at the end of the week"
+          ],
+          "answerText": "1. Observe daily, 2. Record on chart, 3. Describe patterns"
+        },
+        {
+          "id": "g3_t3_l03_q19",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "If dark rain clouds gather and thunder rumbles while you are playing outside, what is the safest action?",
+          "options": [
+            "Go indoors to a safe shelter right away",
+            "Climb a tall metal pole",
+            "Swim in a pond",
+            "Ignore it and stay in an open field"
+          ],
+          "correctIndex": 0,
+          "answerText": "Go indoors to a safe shelter right away"
+        },
+        {
+          "id": "g3_t3_l03_q20",
+          "type": "TRUE_FALSE",
+          "prompt": "Weather affects both our daily plans and our personal safety.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        }
+      ]
+    },
+    {
+      "id": "g3_t3_l05",
+      "order": 13,
+      "title": "Daytime & Nighttime Sky Objects and Sun Safety",
+      "grade": 3,
+      "term": 3,
+      "contentTopic": "Celestial Objects",
+      "weeks": "Weeks 9–11",
+      "questions": [
+        {
+          "id": "g3_t3_l05_q01",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Which natural objects can be observed in the sky during daytime and nighttime?",
+          "options": [
+            "The Sun, the Moon, planets, and stars",
+            "Cars, boats, and bicycles",
+            "Rocks, soil, and pebbles",
+            "Roots, stems, and leaves"
+          ],
+          "correctIndex": 0,
+          "answerText": "The Sun, the Moon, planets, and stars"
+        },
+        {
+          "id": "g3_t3_l05_q02",
+          "type": "TRUE_FALSE",
+          "prompt": "The Sun is the brightest natural object seen in our daytime sky, though the Moon can sometimes be seen during the day too.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l05_q03",
+          "type": "MULTI_SELECT",
+          "prompt": "Click all natural sky objects studied in Grade 3 Term 3:",
+          "isPictureMode": true,
+          "items": [
+            "The Sun",
+            "The Moon",
+            "Stars and planets"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "The Sun, The Moon, Stars and planets"
+        },
+        {
+          "id": "g3_t3_l05_q04",
+          "type": "MATCHING",
+          "prompt": "Match the sky object to when it is most commonly seen",
+          "leftItems": [
+            "The Sun",
+            "Stars and most visible planets",
+            "The Moon"
+          ],
+          "rightItems": [
+            "Daytime sky",
+            "Nighttime sky",
+            "Mostly nighttime sky, and sometimes faintly during daytime"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1,
+            "2": 2
+          },
+          "answerText": "The Sun → Daytime sky; Stars and planets → Nighttime sky; The Moon → Mostly nighttime, sometimes daytime"
+        },
+        {
+          "id": "g3_t3_l05_q05",
+          "type": "SORT_BUCKETS",
+          "prompt": "Drag each sky observation into Daytime Sky or Nighttime Sky",
+          "buckets": [
+            "Daytime Sky",
+            "Nighttime Sky"
+          ],
+          "cards": [
+            {
+              "text": "Bright Sun shining across the sky",
+              "bucketIndex": 0
+            },
+            {
+              "text": "Twinkling stars and visible planets in dark sky",
+              "bucketIndex": 1
+            }
+          ],
+          "answerText": "Daytime = Bright Sun; Nighttime = Twinkling stars and visible planets"
         },
         {
           "id": "g3_t3_l05_q06",
           "type": "MULTIPLE_CHOICE",
-          "prompt": "Why should people take safety measures against strong sunlight?",
+          "prompt": "How do the Sun, Moon, and stars appear to move across the sky?",
           "options": [
-            "Too much direct sunlight/heat can harm skin and eyes",
-            "Sunlight makes hats heavy",
-            "Sunlight stops clocks",
-            "Sunlight turns water into stone"
+            "They appear to rise in the east and move westward across the sky",
+            "They bounce up and down like a basketball",
+            "They stay frozen in one exact spot forever",
+            "They only move on Sundays"
           ],
           "correctIndex": 0,
-          "answerText": "A"
+          "answerText": "They appear to rise in the east and move westward across the sky"
         },
         {
           "id": "g3_t3_l05_q07",
           "type": "TRUE_FALSE",
-          "prompt": "Safe observation of the sky means never looking straight at the bright Sun.",
+          "prompt": "Natural objects in the sky affect people's daily activities, such as waking and working by sunlight and resting at night.",
           "correctBool": true,
           "explanation": "",
           "answerText": "True"
@@ -1292,21 +3668,77 @@
         {
           "id": "g3_t3_l05_q08",
           "type": "MULTI_SELECT",
-          "prompt": "Select the picture showing safe outdoor sun protection:",
+          "prompt": "Tap the safety measures that protect you from the harmful effects of the Sun's bright light and heat:",
+          "isPictureMode": false,
+          "items": [
+            "Wearing a hat or cap",
+            "Staying in the shade during midday sun",
+            "Using sunscreen/protective clothing and never staring at the Sun"
+          ],
+          "correctIndices": [
+            0,
+            1,
+            2
+          ],
+          "answerText": "Wearing a hat or cap, Staying in the shade, Using sunscreen/protective clothing and never staring at the Sun"
+        },
+        {
+          "id": "g3_t3_l05_q09",
+          "type": "MATCHING",
+          "prompt": "Match the sky object to how it affects human activities",
+          "leftItems": [
+            "Sunlight during the day",
+            "Moon and stars at night"
+          ],
+          "rightItems": [
+            "Provides natural light and warmth for school, farming, and outdoor work",
+            "Provide dim natural light at night and help people tell time/direction"
+          ],
+          "correctPairs": {
+            "0": 0,
+            "1": 1
+          },
+          "answerText": "Sunlight → Light & warmth for work/school; Moon and stars → Dim night light & direction/time"
+        },
+        {
+          "id": "g3_t3_l05_q10",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "Why should you never look directly at the Sun, even when wearing regular sunglasses?",
+          "options": [
+            "The Sun's intense light can permanently damage your eyes",
+            "The Sun will turn blue",
+            "It makes clouds disappear",
+            "It stops wind"
+          ],
+          "correctIndex": 0,
+          "answerText": "The Sun's intense light can permanently damage your eyes"
+        },
+        {
+          "id": "g3_t3_l05_q11",
+          "type": "TRUE_FALSE",
+          "prompt": "Too much exposure to strong midday sunlight can cause sunburn and overheating.",
+          "correctBool": true,
+          "explanation": "",
+          "answerText": "True"
+        },
+        {
+          "id": "g3_t3_l05_q12",
+          "type": "MULTI_SELECT",
+          "prompt": "Select the picture showing safe sky observation:",
           "isPictureMode": true,
           "items": [
-            "Learner wearing a hat/shade while outdoors"
+            "Child wearing a sun hat and observing shadows/sky safely without staring at the Sun"
           ],
           "correctIndices": [
             0
           ],
-          "answerText": "Learner wearing a hat/shade while outdoors"
+          "answerText": "Child wearing a sun hat and observing shadows/sky safely without staring at the Sun"
         },
         {
-          "id": "g3_t3_l05_q09",
+          "id": "g3_t3_l05_q13",
           "type": "HOTSPOT",
-          "prompt": "Tap the Moon in the night sky scene",
-          "sceneTitle": "Interactive Night Scene",
+          "prompt": "Tap the Moon in the nighttime sky illustration",
+          "sceneTitle": "Interactive Night Sky",
           "hotspots": [
             "Moon",
             "Stars",
@@ -1318,98 +3750,94 @@
           "answerText": "Moon"
         },
         {
-          "id": "g3_t3_l05_q10",
+          "id": "g3_t3_l05_q14",
           "type": "MATCHING",
-          "prompt": "Match the sky object to a simple fact",
+          "prompt": "Match the time of day to the Sun's apparent position",
           "leftItems": [
-            "Sun",
-            "Stars"
+            "Early morning",
+            "Noon / midday",
+            "Late afternoon"
           ],
           "rightItems": [
-            "Seen in daytime sky; provides light and heat",
-            "Tiny points of light visible in the night sky"
+            "Low in the eastern sky",
+            "High overhead in the sky",
+            "Low in the western sky"
           ],
           "correctPairs": {
             "0": 0,
-            "1": 1
+            "1": 1,
+            "2": 2
           },
-          "answerText": "1-A, 2-B"
+          "answerText": "Early morning → Low in the east; Noon → High overhead; Late afternoon → Low in the west"
         },
         {
-          "id": "g3_t3_l05_q11",
+          "id": "g3_t3_l05_q15",
           "type": "MULTIPLE_CHOICE",
-          "prompt": "Which activity is often planned around daytime sunlight?",
+          "prompt": "Which activity shows recording how sky objects appear to move?",
           "options": [
-            "Drying clothes or doing outdoor tasks when there is natural daylight",
-            "Sleeping in total darkness",
-            "Counting night stars at noon",
-            "Freezing water with a flashlight"
+            "Noting the position of the Sun's shadows or the Moon at different hours",
+            "Measuring a pencil with a ruler",
+            "Weighing a stone",
+            "Mixing salt and water"
           ],
           "correctIndex": 0,
-          "answerText": "A"
+          "answerText": "Noting the position of the Sun's shadows or the Moon at different hours"
         },
         {
-          "id": "g3_t3_l05_q12",
+          "id": "g3_t3_l05_q16",
           "type": "TRUE_FALSE",
-          "prompt": "Recording sky observations carefully helps us notice patterns in nature.",
+          "prompt": "Stars are still in space during the day, but the Sun's bright light makes the daytime sky too bright for us to see them.",
           "correctBool": true,
           "explanation": "",
           "answerText": "True"
         },
         {
-          "id": "g3_t3_l05_q13",
+          "id": "g3_t3_l05_q17",
           "type": "MULTI_SELECT",
-          "prompt": "Choose all natural objects in the sky from this list:",
+          "prompt": "Choose all natural celestial objects named in the Grade 3 BOW:",
           "isPictureMode": false,
           "items": [
             "Sun",
             "Moon",
-            "Stars and planets"
+            "Planets",
+            "Stars"
           ],
           "correctIndices": [
             0,
             1,
-            2
+            2,
+            3
           ],
-          "answerText": "All three"
+          "answerText": "Sun, Moon, Planets, Stars"
         },
         {
-          "id": "g3_t3_l05_q14",
-          "type": "SORT_BUCKETS",
-          "prompt": "Sort these into Safe Sun Habits vs. Unsafe Sun Habits",
-          "buckets": [
-            "Safe",
-            "Unsafe"
+          "id": "g3_t3_l05_q18",
+          "type": "ORDER_STEPS",
+          "prompt": "Order the apparent daily path of the Sun across the sky",
+          "steps": [
+            "Rises in the east in the morning",
+            "High in the sky around noon",
+            "Sets in the west in late afternoon"
           ],
-          "cards": [
-            {
-              "text": "Wearing a hat and seeking shade",
-              "bucketIndex": 0
-            },
-            {
-              "text": "Staring straight at the bright Sun",
-              "bucketIndex": 1
-            }
-          ],
-          "answerText": "Safe = Wearing a hat and seeking shade; Unsafe = Staring straight at the bright Sun"
+          "answerText": "1. Rises in the east, 2. High around noon, 3. Sets in the west"
         },
         {
-          "id": "g3_t3_l05_q15",
+          "id": "g3_t3_l05_q19",
           "type": "MULTIPLE_CHOICE",
-          "prompt": "How do people use observations of the sky in daily life?",
+          "prompt": "What is a good reminder card tip for Sun safety?",
           "options": [
-            "To notice day/night times, plan activities, and practice sun safety",
-            "To build a bridge out of clouds",
-            "To change gravity",
-            "To stop wind"
+            "\"Wear a hat, seek shade at midday, drink water, and never stare directly at the Sun!\"",
+            "\"Stare at the Sun for five minutes.\"",
+            "\"Play outside at noon with no water or shade.\"",
+            "\"Never go outdoors.\""
           ],
           "correctIndex": 0,
-          "answerText": "A"
+          "answerText": "\"Wear a hat, seek shade at midday, drink water, and never stare directly at the Sun!\""
         },
         {
-          "id": "g3_t3_l05_q16",
+          "id": "g3_t3_l05_q20",
           "type": "TRUE_FALSE",
-          "prompt": "Both daytime and nighttime sky objects are part of our natural environment.",
+          "prompt": "Observing the sky safely helps us notice predictable patterns in nature.",
           "correctBool": true,
           "explanation": "",
           "answerText": "True"
@@ -1418,7 +3846,7 @@
     },
     {
       "id": "g4_t1_l06",
-      "order": 6,
+      "order": 14,
       "title": "Inventors, Inventions, and Everyday Impact",
       "grade": 4,
       "term": 1,
@@ -1711,7 +4139,7 @@
     },
     {
       "id": "g4_t1_l07",
-      "order": 7,
+      "order": 15,
       "title": "Chemical Properties, Heat Changes, and Safe Handling",
       "grade": 4,
       "term": 1,
@@ -1968,14 +4396,14 @@
           "type": "SORT_BUCKETS",
           "prompt": "Sort these materials by property",
           "buckets": [
-            "Dry banana leaf",
-            "Aluminum foil",
-            "Vinegar + baking soda"
+            "Biodegradable",
+            "Non-biodegradable Metal",
+            "Reactive Change"
           ],
           "cards": [
             {
               "text": "Dry banana leaf",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Aluminum foil",
@@ -1983,7 +4411,7 @@
             },
             {
               "text": "Vinegar + baking soda fizzing",
-              "bucketIndex": 1
+              "bucketIndex": 2
             }
           ],
           "answerText": "Dry banana leaf = Biodegradable; Aluminum foil = Non-biodegradable metal; Vinegar + baking soda = Reactive change"
@@ -2013,7 +4441,7 @@
     },
     {
       "id": "g4_t1_l08",
-      "order": 8,
+      "order": 16,
       "title": "Community Surveys & Science Process Skills",
       "grade": 4,
       "term": 1,
@@ -2083,14 +4511,14 @@
           "type": "SORT_BUCKETS",
           "prompt": "Drag each survey item into Plastic/Packaging, Food/Garden Waste, or Metal/Glass",
           "buckets": [
-            "Empty soda can",
-            "Leftover rice/peels",
-            "Plastic food wrapper"
+            "Metal/Glass",
+            "Food/Garden Waste",
+            "Plastic/Packaging"
           ],
           "cards": [
             {
               "text": "Empty soda can",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Leftover rice/peels",
@@ -2098,7 +4526,7 @@
             },
             {
               "text": "Plastic food wrapper",
-              "bucketIndex": 1
+              "bucketIndex": 2
             }
           ],
           "answerText": "Empty soda can = Metal/Glass; Leftover rice/peels = Food/Garden Waste; Plastic food wrapper = Plastic/Packaging"
@@ -2300,7 +4728,7 @@
     },
     {
       "id": "g4_t1_l09",
-      "order": 9,
+      "order": 17,
       "title": "Body Systems and Plant Root & Shoot Systems",
       "grade": 4,
       "term": 1,
@@ -2598,7 +5026,7 @@
     },
     {
       "id": "g4_t1_l10",
-      "order": 10,
+      "order": 18,
       "title": "Habitats of Philippine Plants and Animals",
       "grade": 4,
       "term": 1,
@@ -2668,8 +5096,8 @@
           "type": "SORT_BUCKETS",
           "prompt": "Drag each Philippine habitat into Garden / Rice Field or Seashore / Mangrove Swamp",
           "buckets": [
-            "Coastal/brackish water with mangrove roots",
-            "Garden plants and rice paddy"
+            "Seashore / Mangrove Swamp",
+            "Garden / Rice Field"
           ],
           "cards": [
             {
@@ -2897,7 +5325,7 @@
     },
     {
       "id": "g4_t2_l11",
-      "order": 11,
+      "order": 19,
       "title": "Animal Life Cycles Compared",
       "grade": 4,
       "term": 2,
@@ -3172,7 +5600,7 @@
     },
     {
       "id": "g4_t2_l12",
-      "order": 12,
+      "order": 20,
       "title": "Herbivores, Carnivores, and Omnivores",
       "grade": 4,
       "term": 2,
@@ -3445,11 +5873,11 @@
             },
             {
               "text": "Eats only meat",
-              "bucketIndex": 0
+              "bucketIndex": 1
             },
             {
               "text": "Eats both plants and meat",
-              "bucketIndex": 1
+              "bucketIndex": 2
             }
           ],
           "answerText": "Herbivore = Eats only leaves/grass; Carnivore = Eats only meat; Omnivore = Eats both"
@@ -3479,7 +5907,7 @@
     },
     {
       "id": "g4_t2_l13",
-      "order": 13,
+      "order": 21,
       "title": "Philippine Food Chains and Feeding Roles",
       "grade": 4,
       "term": 2,
@@ -3550,8 +5978,9 @@
           "type": "SORT_BUCKETS",
           "prompt": "Drag the organisms into a logical food chain sequence (1 to 3)",
           "buckets": [
-            "a logical food chain sequence (1 to 3)",
-            "Not Included"
+            "1st: Producer",
+            "2nd: Herbivore",
+            "3rd: Predator"
           ],
           "cards": [
             {
@@ -3564,7 +5993,7 @@
             },
             {
               "text": "Larger predator eating that animal",
-              "bucketIndex": 0
+              "bucketIndex": 2
             }
           ],
           "answerText": "1. Green plant, 2. Plant-eating animal, 3. Predator animal"
@@ -3772,7 +6201,7 @@
     },
     {
       "id": "g4_t2_l14",
-      "order": 14,
+      "order": 22,
       "title": "Forces, Shape Changes, Speed, and Graphs",
       "grade": 4,
       "term": 2,
@@ -4068,7 +6497,7 @@
     },
     {
       "id": "g4_t2_l15",
-      "order": 15,
+      "order": 23,
       "title": "Magnets and Non-Contact Effects",
       "grade": 4,
       "term": 2,
@@ -4366,7 +6795,7 @@
     },
     {
       "id": "g4_t3_l16",
-      "order": 16,
+      "order": 24,
       "title": "Light, Sound, and Heat Energy Around Us",
       "grade": 4,
       "term": 3,
@@ -4663,7 +7092,7 @@
     },
     {
       "id": "g4_t3_l17",
-      "order": 17,
+      "order": 25,
       "title": "Types of Soil, Water Holding, and Plant Growth",
       "grade": 4,
       "term": 3,
@@ -4958,7 +7387,7 @@
     },
     {
       "id": "g4_t3_l18",
-      "order": 18,
+      "order": 26,
       "title": "Weather Elements, Weather Instruments, and Forecasts",
       "grade": 4,
       "term": 3,
@@ -5250,7 +7679,7 @@
     },
     {
       "id": "g4_t3_l19",
-      "order": 19,
+      "order": 27,
       "title": "The Sun, Shadows, and Life on Earth",
       "grade": 4,
       "term": 3,
@@ -5533,7 +7962,7 @@
     },
     {
       "id": "g5_t1_l20",
-      "order": 20,
+      "order": 28,
       "title": "Everyday Matter Around Us",
       "grade": 5,
       "term": 1,
@@ -5837,7 +8266,7 @@
     },
     {
       "id": "g5_t1_l21",
-      "order": 21,
+      "order": 29,
       "title": "Shapes, Volumes, Measuring Liquids, and State Changes",
       "grade": 5,
       "term": 1,
@@ -5922,7 +8351,7 @@
             },
             {
               "text": "Liquid water freezing into ice",
-              "bucketIndex": 0
+              "bucketIndex": 1
             }
           ],
           "answerText": "Adding Heat = Ice melting, Water turning into vapor; Removing Heat = Liquid water freezing"
@@ -6121,7 +8550,7 @@
     },
     {
       "id": "g5_t1_l22",
-      "order": 22,
+      "order": 30,
       "title": "Steps, Units, and Equipment in Scientific Investigations",
       "grade": 5,
       "term": 1,
@@ -6417,7 +8846,7 @@
     },
     {
       "id": "g5_t1_l23",
-      "order": 23,
+      "order": 31,
       "title": "Classifying Living Things and Plant Adaptations",
       "grade": 5,
       "term": 1,
@@ -6730,7 +9159,7 @@
     },
     {
       "id": "g5_t2_l24",
-      "order": 24,
+      "order": 32,
       "title": "Animal Body Systems: Digestion, Breathing, and Reproduction",
       "grade": 5,
       "term": 2,
@@ -7021,7 +9450,7 @@
     },
     {
       "id": "g5_t2_l25",
-      "order": 25,
+      "order": 33,
       "title": "Reproduction, Adaptations, and Life Cycles in Nature",
       "grade": 5,
       "term": 2,
@@ -7303,7 +9732,7 @@
     },
     {
       "id": "g5_t2_l26",
-      "order": 26,
+      "order": 34,
       "title": "Contact Forces and Direction of Motion",
       "grade": 5,
       "term": 2,
@@ -7603,7 +10032,7 @@
     },
     {
       "id": "g5_t2_l27",
-      "order": 27,
+      "order": 35,
       "title": "Friction: Surfaces, Heat, and Stopping Motion",
       "grade": 5,
       "term": 2,
@@ -7897,7 +10326,7 @@
     },
     {
       "id": "g5_t2_l28",
-      "order": 28,
+      "order": 36,
       "title": "Gravity and Falling Objects",
       "grade": 5,
       "term": 2,
@@ -7936,6 +10365,7 @@
             "Object floating away with no force"
           ],
           "correctIndices": [
+            0,
             1
           ],
           "answerText": "Ball/fruit falling downward, Thrown ball arcing downward"
@@ -8191,7 +10621,7 @@
     },
     {
       "id": "g5_t3_l29",
-      "order": 29,
+      "order": 37,
       "title": "Rubbing, Charges, and Static Sparks",
       "grade": 5,
       "term": 3,
@@ -8482,7 +10912,7 @@
     },
     {
       "id": "g5_t3_l30",
-      "order": 30,
+      "order": 38,
       "title": "Circuits, Conductors, Insulators, and Electromagnets",
       "grade": 5,
       "term": 3,
@@ -8792,7 +11222,7 @@
     },
     {
       "id": "g5_t3_l31",
-      "order": 31,
+      "order": 39,
       "title": "Landforms, Water Bodies, Rocks, and Soil Formation",
       "grade": 5,
       "term": 3,
@@ -9089,7 +11519,7 @@
     },
     {
       "id": "g5_t3_l32",
-      "order": 32,
+      "order": 40,
       "title": "Weathering and How Erosion Transports Earth Materials",
       "grade": 5,
       "term": 3,
@@ -9372,7 +11802,7 @@
     },
     {
       "id": "g5_t3_l33",
-      "order": 33,
+      "order": 41,
       "title": "Water Cycle Processes and Models",
       "grade": 5,
       "term": 3,
@@ -9673,7 +12103,7 @@
     },
     {
       "id": "g5_t3_l34",
-      "order": 34,
+      "order": 42,
       "title": "Weather Disturbances, PAGASA Signals, and Tropical Cyclones",
       "grade": 5,
       "term": 3,
@@ -9961,7 +12391,7 @@
     },
     {
       "id": "g5_t3_l35",
-      "order": 35,
+      "order": 43,
       "title": "The Solar System and Phases of the Moon",
       "grade": 5,
       "term": 3,
@@ -10248,7 +12678,7 @@
     },
     {
       "id": "g6_t1_l36",
-      "order": 36,
+      "order": 44,
       "title": "State Change Flowcharts and Heat Energy",
       "grade": 6,
       "term": 1,
@@ -10439,9 +12869,9 @@
             "Freezing"
           ],
           "correctIndices": [
-            0
+            2
           ],
-          "answerText": "Arrow from Gas/Vapor to Liquid"
+          "answerText": "Condensation (Gas/Vapor to Liquid)"
         },
         {
           "id": "g6_t1_l36_q14",
@@ -10539,7 +12969,7 @@
     },
     {
       "id": "g6_t1_l37",
-      "order": 37,
+      "order": 45,
       "title": "Reversible Physical vs. Irreversible Chemical Changes",
       "grade": 6,
       "term": 1,
@@ -10832,7 +13262,7 @@
     },
     {
       "id": "g6_t1_l38",
-      "order": 38,
+      "order": 46,
       "title": "Mixtures, Air Composition, and Separation Techniques",
       "grade": 6,
       "term": 1,
@@ -11143,7 +13573,7 @@
     },
     {
       "id": "g6_t1_l39",
-      "order": 39,
+      "order": 47,
       "title": "Fair Tests, Replication, and Accurate Measurement",
       "grade": 6,
       "term": 1,
@@ -11427,7 +13857,7 @@
     },
     {
       "id": "g6_t1_l40",
-      "order": 40,
+      "order": 48,
       "title": "The Human Circulatory System",
       "grade": 6,
       "term": 1,
@@ -11726,7 +14156,7 @@
     },
     {
       "id": "g6_t1_l41",
-      "order": 41,
+      "order": 49,
       "title": "Plant Reproduction, Propagation, and Fair-Test Planning",
       "grade": 6,
       "term": 1,
@@ -11805,11 +14235,11 @@
           "cards": [
             {
               "text": "Pollination & seed production",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Cutting, budding, layering, grafting",
-              "bucketIndex": 1
+              "bucketIndex": 0
             }
           ],
           "answerText": "Both belong to plant reproduction/propagation"
@@ -12032,7 +14462,7 @@
     },
     {
       "id": "g6_t1_l42",
-      "order": 42,
+      "order": 50,
       "title": "Vertebrates and Invertebrates",
       "grade": 6,
       "term": 1,
@@ -12321,7 +14751,7 @@
     },
     {
       "id": "g6_t2_l43",
-      "order": 43,
+      "order": 51,
       "title": "Roles in Food Webs",
       "grade": 6,
       "term": 2,
@@ -12403,19 +14833,19 @@
           "cards": [
             {
               "text": "Producer",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Consumer",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Scavenger",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Decomposer",
-              "bucketIndex": 1
+              "bucketIndex": 0
             }
           ],
           "answerText": "All four roles sorted accurately with definitions"
@@ -12624,7 +15054,7 @@
     },
     {
       "id": "g6_t2_l44",
-      "order": 44,
+      "order": 52,
       "title": "Competition, Predation, and Ecosystem Interactions",
       "grade": 6,
       "term": 2,
@@ -12909,7 +15339,7 @@
     },
     {
       "id": "g6_t2_l45",
-      "order": 45,
+      "order": 53,
       "title": "Biotic and Abiotic Factors and Helpful or Harmful Interactions",
       "grade": 6,
       "term": 2,
@@ -13208,7 +15638,7 @@
     },
     {
       "id": "g6_t2_l46",
-      "order": 46,
+      "order": 54,
       "title": "Simple Machines, Advantages, Limitations, and Levers",
       "grade": 6,
       "term": 2,
@@ -13521,7 +15951,7 @@
     },
     {
       "id": "g6_t2_l47",
-      "order": 47,
+      "order": 55,
       "title": "Waves, Water Wave Features, and Wave Properties",
       "grade": 6,
       "term": 2,
@@ -13819,7 +16249,7 @@
     },
     {
       "id": "g6_t3_l48",
-      "order": 48,
+      "order": 56,
       "title": "Longitudinal and Transverse Waves and Moving Sound",
       "grade": 6,
       "term": 3,
@@ -14104,7 +16534,7 @@
     },
     {
       "id": "g6_t3_l49",
-      "order": 49,
+      "order": 57,
       "title": "Volcanoes, Eruption Patterns, and PHIVOLCS Safety",
       "grade": 6,
       "term": 3,
@@ -14399,7 +16829,7 @@
     },
     {
       "id": "g6_t3_l50",
-      "order": 50,
+      "order": 58,
       "title": "Seasons in the Philippines and Appropriate Activities",
       "grade": 6,
       "term": 3,
@@ -14684,7 +17114,7 @@
     },
     {
       "id": "g6_t3_l51",
-      "order": 51,
+      "order": 59,
       "title": "Earth's Rotation, Sun–Earth–Moon Model, and Observable Patterns",
       "grade": 6,
       "term": 3,
@@ -14972,7 +17402,7 @@
     },
     {
       "id": "g6_t3_l52",
-      "order": 52,
+      "order": 60,
       "title": "Constellations, Navigation, Time, and Indigenous Sky Knowledge",
       "grade": 6,
       "term": 3,
@@ -15049,11 +17479,11 @@
           "cards": [
             {
               "text": "Using star patterns for direction and seasonal verification",
-              "bucketIndex": 1
+              "bucketIndex": 0
             },
             {
               "text": "Indigenous understandings of eclipses and night-sky time tracking",
-              "bucketIndex": 1
+              "bucketIndex": 0
             }
           ],
           "answerText": "Both belong here"

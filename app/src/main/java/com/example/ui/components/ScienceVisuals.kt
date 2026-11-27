@@ -444,7 +444,7 @@ fun InteractiveRulerSlider(
           horizontalArrangement = Arrangement.SpaceBetween,
         ) {
           Text("$minValue $unit", style = MaterialTheme.typography.labelSmall)
-          Text("15 $unit", style = MaterialTheme.typography.labelSmall)
+          Text("${(minValue + maxValue) / 2} $unit", style = MaterialTheme.typography.labelSmall)
           Text("$maxValue $unit", style = MaterialTheme.typography.labelSmall)
         }
       }

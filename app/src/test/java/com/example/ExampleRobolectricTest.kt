@@ -78,12 +78,14 @@ class ExampleRobolectricTest {
   fun `curriculum asset loads all grades and lessons`() = runTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val lessons = CurriculumLoader(context).loadLessons()
-    assertEquals(52, lessons.size)
-    assertTrue(lessons.any { it.grade == 3 })
+    assertEquals(60, lessons.size)
+    assertTrue(lessons.any { it.grade == 3 && it.term == 1 })
+    assertTrue(lessons.any { it.grade == 3 && it.term == 2 })
+    assertTrue(lessons.any { it.grade == 3 && it.term == 3 })
     assertTrue(lessons.any { it.grade == 4 })
     assertTrue(lessons.any { it.grade == 5 })
     assertTrue(lessons.any { it.grade == 6 })
-    assertTrue(lessons.sumOf { it.questions.size } >= 1036)
+    assertEquals(1202, lessons.sumOf { it.questions.size })
   }
 
   @Test
@@ -428,6 +430,103 @@ class ExampleRobolectricTest {
       vm.submitAnswer()
       assertTrue(vm.sessionState.value!!.feedback!!.isCorrect)
 
+      collector.cancel()
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `all curriculum questions validate structurally and fixed items evaluate accurately`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val lessons = CurriculumLoader(context).loadLessons()
+    val seenLessonIds = mutableSetOf<String>()
+    val seenQuestionIds = mutableSetOf<String>()
+
+    lessons.forEach { lesson ->
+      assertTrue("Duplicate lesson id ${lesson.id}", seenLessonIds.add(lesson.id))
+      assertTrue("Empty questions in ${lesson.id}", lesson.questions.isNotEmpty())
+      lesson.questions.forEach { q ->
+        assertTrue("Duplicate question id ${q.id}", seenQuestionIds.add(q.id))
+        when (q.type) {
+          QuestionType.MULTIPLE_CHOICE -> {
+            assertTrue("${q.id} MC index", q.correctIndex in q.options.indices)
+          }
+          QuestionType.TRUE_FALSE -> Unit
+          QuestionType.MULTI_SELECT -> {
+            assertTrue("${q.id} MS empty", q.correctIndices.isNotEmpty())
+            assertTrue("${q.id} MS bounds", q.correctIndices.all { it in q.items.indices })
+          }
+          QuestionType.MATCHING -> {
+            assertEquals("${q.id} MATCH sizes", q.leftItems.size, q.rightItems.size)
+            assertEquals("${q.id} MATCH pairs", q.leftItems.size, q.correctPairs.size)
+            q.correctPairs.forEach { (l, r) ->
+              assertTrue("${q.id} left bounds", l in q.leftItems.indices)
+              assertTrue("${q.id} right bounds", r in q.rightItems.indices)
+            }
+          }
+          QuestionType.SORT_BUCKETS -> {
+            assertTrue("${q.id} buckets", q.buckets.isNotEmpty())
+            assertTrue("${q.id} cards", q.cards.isNotEmpty())
+            assertTrue("${q.id} card bounds", q.cards.all { it.bucketIndex in q.buckets.indices })
+            assertFalse(
+              "${q.id} all cards in Not Included",
+              q.cards.all { q.buckets[it.bucketIndex] == "Not Included" },
+            )
+          }
+          QuestionType.ORDER_STEPS -> {
+            assertTrue("${q.id} steps", q.steps.size >= 2)
+          }
+          QuestionType.HOTSPOT -> {
+            assertTrue("${q.id} hotspot empty", q.correctIndices.isNotEmpty())
+            assertTrue("${q.id} hotspot bounds", q.correctIndices.all { it in q.hotspots.indices })
+          }
+          QuestionType.SLIDER -> {
+            assertTrue("${q.id} slider bounds", q.minValue < q.maxValue && q.targetValue in q.minValue..q.maxValue)
+          }
+          QuestionType.SIMULATION -> {
+            assertTrue("${q.id} sim choices", q.correctIndex in q.choices.indices)
+          }
+          QuestionType.FILL_BLANK -> {
+            assertTrue("${q.id} fill blank", q.correctAnswers.isNotEmpty() && q.correctAnswers.all { it in q.choices })
+          }
+        }
+      }
+    }
+
+    val byId = lessons.flatMap { it.questions }.associateBy { it.id }
+    assertEquals(listOf(1), byId.getValue("g3_t1_l02_q13").correctIndices)
+    assertEquals(listOf(0, 1, 2), byId.getValue("g3_t1_l03_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 1, 2), byId.getValue("g4_t1_l07_q18").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 1, 2), byId.getValue("g4_t1_l08_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf("Seashore / Mangrove Swamp", "Garden / Rice Field"), byId.getValue("g4_t1_l10_q05").buckets)
+    assertEquals(listOf(0, 1, 2), byId.getValue("g4_t2_l12_q18").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 1, 2), byId.getValue("g4_t2_l13_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 0, 1), byId.getValue("g5_t1_l21_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 1), byId.getValue("g5_t2_l28_q03").correctIndices)
+    assertEquals(listOf(2), byId.getValue("g6_t1_l36_q13").correctIndices)
+    assertEquals(listOf(0, 0), byId.getValue("g6_t1_l41_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 0, 0, 0), byId.getValue("g6_t2_l43_q05").cards.map { it.bucketIndex })
+    assertEquals(listOf(0, 0), byId.getValue("g6_t3_l52_q05").cards.map { it.bucketIndex })
+
+    // Verify new Grade 3 Term 2 Week 11 bidirectional slider starts at 0 and accepts +30 cm
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      val vm = MainViewModel(repo)
+      val collector = launch(Dispatchers.Unconfined) { vm.uiState.collect {} }
+      waitUntil { !vm.uiState.value.isLoading }
+
+      val g3PositionLesson = lessons.first { it.id == "g3_t2_l05" }
+      val sliderQ = g3PositionLesson.questions[17]
+      assertEquals("g3_t2_l05_q18", sliderQ.id)
+      vm.startLesson(g3PositionLesson.copy(questions = listOf(sliderQ)))
+      assertEquals(0f, vm.sessionState.value!!.sliderValue)
+      vm.onSliderChange(30f)
+      vm.submitAnswer()
+      assertTrue(vm.sessionState.value!!.feedback!!.isCorrect)
       collector.cancel()
     } finally {
       db.close()

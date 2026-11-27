@@ -470,7 +470,7 @@ class MainViewModel(
       cardBucketAssignments = emptyMap(),
       orderedStepIndices = shuffledSteps,
       selectedHotspotIndices = emptySet(),
-      sliderValue = q.minValue.toFloat(),
+      sliderValue = if (q.minValue < 0 && q.maxValue > 0) 0f else q.minValue.toFloat(),
       simHasRun = false,
       simSelectedChoice = null,
       fillBlankSelections = emptyList(),
