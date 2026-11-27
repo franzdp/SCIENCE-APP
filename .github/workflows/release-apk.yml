@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build-and-release:
-    name: Build Release & Debug APKs
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -100,23 +100,18 @@ jobs:
       - name: Build Release APK
         run: gradle :app:assembleRelease --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Djava.awt.headless=true" -Dorg.gradle.workers.max=2 --stacktrace
 
-      - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Djava.awt.headless=true" -Dorg.gradle.workers.max=2 --stacktrace
-
-      - name: Collect Output APKs
+      - name: Collect Release APK
         run: |
           mkdir -p build-apks
           RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
           test -n "$RELEASE_APK" && cp "$RELEASE_APK" build-apks/scientists-of-bagacay-es-release.apk
-          test -n "$DEBUG_APK" && cp "$DEBUG_APK" build-apks/scientists-of-bagacay-es-debug.apk
           ls -lh build-apks/
 
-      - name: Upload APK Artifacts
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v5
         with:
-          name: scientists-of-bagacay-es-apks
-          path: build-apks/*.apk
+          name: scientists-of-bagacay-es-release-apk
+          path: build-apks/scientists-of-bagacay-es-release.apk
           retention-days: 30
 
       - name: Determine Release Tag
