@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
     val repo = ScienceRepository(CurriculumLoader(applicationContext), db.progressDao())
     val factory = MainViewModelFactory(repo)
     val connectivityMonitor = NetworkConnectivityMonitor(applicationContext)
-    val aiRepository = AiScienceRepository(connectivityMonitor)
+    val aiRepository = AiScienceRepository(applicationContext, connectivityMonitor)
     val aiFactory = AiAssistantViewModelFactory(repo, aiRepository, connectivityMonitor)
 
     setContent {

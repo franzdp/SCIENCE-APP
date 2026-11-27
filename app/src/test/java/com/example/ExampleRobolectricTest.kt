@@ -23,6 +23,12 @@ import com.example.ui.viewmodel.AiAssistantViewModel
 import com.example.ui.viewmodel.MainViewModel
 import com.example.ui.viewmodel.buildQuestionTutorContext
 import com.example.util.ConnectivityObserver
+import com.example.util.configureAppCheck
+import com.example.util.ensureFirebaseAppInitialized
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -726,5 +732,16 @@ class ExampleRobolectricTest {
     } finally {
       db.close()
     }
+  }
+
+  @Test
+  fun `firebase app and app check initialize cleanly from google services resources`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val app = ensureFirebaseAppInitialized(context)
+    assertNotNull(app)
+    assertTrue(FirebaseApp.getApps(context).isNotEmpty())
+    configureAppCheck(context, null)
+    val ai = Firebase.ai(app = app!!, backend = GenerativeBackend.googleAI())
+    assertNotNull(ai)
   }
 }

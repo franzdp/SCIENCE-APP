@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import com.example.data.model.AiGameType
 import com.example.data.model.GameMemoryPair
@@ -9,7 +10,9 @@ import com.example.data.model.GeneratedScienceGame
 import com.example.data.model.QuestionTutorContext
 import com.example.data.model.TutorLanguage
 import com.example.util.ConnectivityObserver
+import com.example.util.ensureFirebaseAppInitialized
 import com.google.firebase.Firebase
+import com.google.firebase.ai.FirebaseAI
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.AudioTranscriptionConfig
 import com.google.firebase.ai.type.Content
@@ -68,11 +71,20 @@ interface AiTutorService {
 
 @OptIn(PublicPreviewAPI::class)
 class AiScienceRepository(
+  private val appContext: Context,
   private val connectivityObserver: ConnectivityObserver,
 ) : AiTutorService {
 
+  private fun aiClient(): FirebaseAI {
+    val app = ensureFirebaseAppInitialized(appContext)
+      ?: throw IllegalStateException(
+        "Firebase configuration is missing for this build. Please rebuild or ensure google-services.json is included."
+      )
+    return Firebase.ai(app = app, backend = GenerativeBackend.googleAI())
+  }
+
   private val textTutorModel by lazy {
-    Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
+    aiClient().generativeModel(
       modelName = GENERAL_MODEL,
       generationConfig = generationConfig {
         temperature = 0.65f
@@ -124,7 +136,7 @@ class AiScienceRepository(
   }
 
   private val quizGameModel by lazy {
-    Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
+    aiClient().generativeModel(
       modelName = GENERAL_MODEL,
       generationConfig = generationConfig {
         responseMimeType = "application/json"
@@ -135,7 +147,7 @@ class AiScienceRepository(
   }
 
   private val memoryGameModel by lazy {
-    Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
+    aiClient().generativeModel(
       modelName = GENERAL_MODEL,
       generationConfig = generationConfig {
         responseMimeType = "application/json"
@@ -158,7 +170,7 @@ class AiScienceRepository(
     }
 
     val systemPrompt = buildTutorSystemInstruction(language, questionContext)
-    val modelWithInstruction = Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
+    val modelWithInstruction = aiClient().generativeModel(
       modelName = GENERAL_MODEL,
       generationConfig = generationConfig { temperature = 0.65f },
       systemInstruction = content { text(systemPrompt) },
@@ -332,7 +344,7 @@ class AiScienceRepository(
     var lastError: Throwable? = null
     for (modelName in candidates) {
       try {
-        val liveModel = Firebase.ai(backend = GenerativeBackend.googleAI()).liveModel(
+        val liveModel = aiClient().liveModel(
           modelName = modelName,
           generationConfig = liveGenerationConfig {
             responseModality = ResponseModality.AUDIO
