@@ -148,7 +148,7 @@ fun ProgressScreen(
               ) {
                 Icon(Icons.Rounded.Group, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Switch (${uiState.learners.size})", fontWeight = FontWeight.SemiBold)
+                Text("Learners (${uiState.learners.size})", fontWeight = FontWeight.SemiBold)
               }
               Button(
                 onClick = onOpenAddLearner,
@@ -380,10 +380,10 @@ fun ProgressScreen(
             Image(
               painter = painterResource(id = R.drawable.ic_launcher_art),
               contentDescription = "SCIENTISTS of Bagacay ES Logo",
-              contentScale = ContentScale.Crop,
+              contentScale = ContentScale.Fit,
               modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(12.dp)),
+                .size(48.dp)
+                .clip(CircleShape),
             )
             Spacer(Modifier.width(12.dp))
             Column {

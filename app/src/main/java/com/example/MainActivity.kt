@@ -212,6 +212,7 @@ fun AralScienceApp(factory: MainViewModelFactory) {
               onSearchChange = viewModel::updateSearchQuery,
               onStartLesson = viewModel::startLesson,
               onOpenLearnerSwitcher = { showLearnerSwitcher = true },
+              onOpenAddLearner = { showAddLearner = true },
             )
           }
           composable(TopTab.CHALLENGE.route) {

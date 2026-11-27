@@ -23,10 +23,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
@@ -76,6 +78,7 @@ fun LearnScreen(
   onSearchChange: (String) -> Unit,
   onStartLesson: (ScienceLesson) -> Unit,
   onOpenLearnerSwitcher: () -> Unit,
+  onOpenAddLearner: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val gradeLessons = uiState.allLessons.filter { it.grade == uiState.selectedGrade }
@@ -110,10 +113,10 @@ fun LearnScreen(
             Image(
               painter = painterResource(id = R.drawable.ic_launcher_art),
               contentDescription = "SCIENTISTS of Bagacay ES Logo",
-              contentScale = ContentScale.Crop,
+              contentScale = ContentScale.Fit,
               modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(14.dp)),
+                .size(50.dp)
+                .clip(CircleShape),
             )
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -154,13 +157,22 @@ fun LearnScreen(
               contentDescription = "${uiState.stats.learnerName} Avatar",
             )
             Spacer(Modifier.width(10.dp))
-            Column {
-              Text(
-                text = "Hi, ${uiState.stats.learnerName}!",
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-              )
+            Column(modifier = Modifier.weight(1f)) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                  text = "Hi, ${uiState.stats.learnerName}!",
+                  style = MaterialTheme.typography.titleLarge,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  modifier = Modifier.weight(1f, fill = false),
+                )
+                Icon(
+                  imageVector = Icons.Rounded.ArrowDropDown,
+                  contentDescription = "Switch learner",
+                  tint = SkyPrimary,
+                  modifier = Modifier.size(22.dp),
+                )
+              }
               Text(
                 text = "Grade ${uiState.selectedGrade} • ${uiState.stats.totalXp} XP",
                 style = MaterialTheme.typography.bodySmall,
@@ -174,27 +186,27 @@ fun LearnScreen(
             verticalAlignment = Alignment.CenterVertically,
           ) {
             Surface(
-              onClick = onOpenLearnerSwitcher,
+              onClick = onOpenAddLearner,
               shape = RoundedCornerShape(50),
               color = SkyPrimary.copy(alpha = 0.12f),
               border = BorderStroke(1.dp, SkyPrimary.copy(alpha = 0.3f)),
               modifier = Modifier
                 .minimumInteractiveComponentSize()
-                .testTag("switch_learner_button"),
+                .testTag("add_learner_button"),
             ) {
               Row(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
               ) {
                 Icon(
-                  imageVector = Icons.Rounded.Group,
-                  contentDescription = "Switch or add learner",
+                  imageVector = Icons.Rounded.PersonAdd,
+                  contentDescription = "Add learner",
                   tint = SkyPrimary,
                   modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                  text = if (uiState.learners.size > 1) "Switch (${uiState.learners.size})" else "Switch",
+                  text = "Add Learner",
                   style = MaterialTheme.typography.labelMedium,
                   color = SkyPrimary,
                   fontWeight = FontWeight.Bold,

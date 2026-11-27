@@ -32,19 +32,38 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Accept Android SDK Licenses
+        run: |
+          if [ -n "${ANDROID_HOME:-}" ] && [ -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          fi
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: wrapper
 
-      - name: Restore Debug Keystore
+      - name: Restore or Create Debug Keystore
         run: |
-          if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
-            base64 -d debug.keystore.base64 > debug.keystore
+          if [ ! -f debug.keystore ]; then
+            if [ -f debug.keystore.base64 ]; then
+              tr -d '[:space:]' < debug.keystore.base64 | base64 -d > debug.keystore
+            else
+              keytool -genkeypair -noprompt \
+                -keystore debug.keystore \
+                -storetype PKCS12 \
+                -keyalg RSA \
+                -keysize 2048 \
+                -validity 10000 \
+                -alias androiddebugkey \
+                -storepass android \
+                -keypass android \
+                -dname "CN=Android Debug,O=Android,C=US"
+            fi
           fi
 
       - name: Run Unit & Robolectric Tests
-        run: gradle :app:testDebugUnitTest --no-daemon
+        run: gradle :app:testDebugUnitTest --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g" -Dorg.gradle.workers.max=2
 
       - name: Prepare Release Keystore
         env:
@@ -53,16 +72,17 @@ jobs:
           SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           KEYSTORE_FILE="${{ runner.temp }}/upload-keystore.jks"
+          rm -f "$KEYSTORE_FILE"
           if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$SECRET_STORE_PASSWORD" ] && [ -n "$SECRET_KEY_PASSWORD" ]; then
             echo "Using release signing keystore from GitHub Secrets."
-            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$KEYSTORE_FILE"
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$KEYSTORE_FILE"
             echo "KEYSTORE_PATH=$KEYSTORE_FILE" >> "$GITHUB_ENV"
             echo "STORE_PASSWORD=$SECRET_STORE_PASSWORD" >> "$GITHUB_ENV"
             echo "KEY_PASSWORD=$SECRET_KEY_PASSWORD" >> "$GITHUB_ENV"
           else
             echo "::notice::GitHub Secrets ANDROID_KEYSTORE_BASE64, STORE_PASSWORD, and KEY_PASSWORD are not set. Generating a temporary signing keystore for this release APK."
             TEMP_PASS="bagacay_release_temp"
-            keytool -genkeypair -v \
+            keytool -genkeypair -noprompt \
               -keystore "$KEYSTORE_FILE" \
               -storetype PKCS12 \
               -keyalg RSA \
@@ -71,22 +91,25 @@ jobs:
               -alias upload \
               -storepass "$TEMP_PASS" \
               -keypass "$TEMP_PASS" \
-              -dname "CN=SCIENTISTS of Bagacay ES, OU=Bagacay ES, O=Bagacay ES, L=Bagacay, S=PH, C=PH"
+              -dname "CN=SCIENTISTS of Bagacay ES, OU=Bagacay ES, O=Bagacay ES, L=Bagacay, ST=Antique, C=PH"
             echo "KEYSTORE_PATH=$KEYSTORE_FILE" >> "$GITHUB_ENV"
             echo "STORE_PASSWORD=$TEMP_PASS" >> "$GITHUB_ENV"
             echo "KEY_PASSWORD=$TEMP_PASS" >> "$GITHUB_ENV"
           fi
 
-      - name: Build Release & Debug APKs
-        run: gradle assembleRelease assembleDebug --no-daemon
+      - name: Build Release APK
+        run: gradle :app:assembleRelease --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g" -Dorg.gradle.workers.max=2 --stacktrace
+
+      - name: Build Debug APK
+        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g" -Dorg.gradle.workers.max=2 --stacktrace
 
       - name: Collect Output APKs
         run: |
           mkdir -p build-apks
           RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
           DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
-          cp "$RELEASE_APK" build-apks/scientists-of-bagacay-es-release.apk
-          cp "$DEBUG_APK" build-apks/scientists-of-bagacay-es-debug.apk
+          test -n "$RELEASE_APK" && cp "$RELEASE_APK" build-apks/scientists-of-bagacay-es-release.apk
+          test -n "$DEBUG_APK" && cp "$DEBUG_APK" build-apks/scientists-of-bagacay-es-debug.apk
           ls -lh build-apks/
 
       - name: Upload APK Artifacts
