@@ -6,14 +6,30 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.local.AppDatabase
 import com.example.data.local.CurriculumLoader
+import com.example.data.model.AiGameType
+import com.example.data.model.GameGeneratorState
+import com.example.data.model.GameRoundItem
+import com.example.data.model.GeneratedScienceGame
+import com.example.data.model.LiveVoiceState
+import com.example.data.model.QuestionTutorContext
 import com.example.data.model.QuestionType
 import com.example.data.model.ScienceLesson
 import com.example.data.model.ScienceQuestion
+import com.example.data.model.TutorLanguage
+import com.example.data.repository.AiTutorService
+import com.example.data.repository.OFFLINE_AI_WARNING
 import com.example.data.repository.ScienceRepository
+import com.example.ui.viewmodel.AiAssistantViewModel
 import com.example.ui.viewmodel.MainViewModel
+import com.example.ui.viewmodel.buildQuestionTutorContext
+import com.example.util.ConnectivityObserver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -152,7 +168,7 @@ class ExampleRobolectricTest {
   }
 
   @Test
-  fun `activity logs and aral report snapshots record per learner progress accurately`() = runTest {
+  fun `activity logs and competency report snapshots record per learner progress accurately`() = runTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
       .allowMainThreadQueries()
@@ -212,7 +228,8 @@ class ExampleRobolectricTest {
           allLearnerSnapshots = snapshots,
         )
         val fileName = com.example.util.ScienceReportPdfGenerator.suggestedFileName(req)
-        assertTrue(fileName.startsWith("ARAL_Science_Report_"))
+        assertTrue(fileName.startsWith("Science_Competency_Report_"))
+        assertFalse(fileName.contains("ARAL", ignoreCase = true))
         assertTrue(fileName.endsWith(".pdf"))
       }
 
@@ -528,6 +545,184 @@ class ExampleRobolectricTest {
       vm.submitAnswer()
       assertTrue(vm.sessionState.value!!.feedback!!.isCorrect)
       collector.cancel()
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `offline mode disables AI features with warning while allowing offline activities`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      repo.ensureInitialStats()
+      val fakeConnectivity = object : ConnectivityObserver {
+        private val state = MutableStateFlow(false)
+        override val isOnline: StateFlow<Boolean> = state
+        override fun checkOnlineNow(): Boolean = state.value
+      }
+      var aiCalled = false
+      val fakeAiService = object : AiTutorService {
+        override fun streamTutorExplanation(
+          userMessage: String,
+          language: TutorLanguage,
+          questionContext: QuestionTutorContext?,
+          recentHistory: List<Pair<Boolean, String>>,
+        ): Flow<String> {
+          aiCalled = true
+          return flowOf("Should not run offline")
+        }
+
+        override suspend fun generateScienceGame(
+          topic: String,
+          gradeLevel: Int,
+          language: TutorLanguage,
+          gameType: AiGameType,
+        ): GeneratedScienceGame {
+          aiCalled = true
+          error("Should not run offline")
+        }
+
+        override suspend fun startVoiceConversation(
+          language: TutorLanguage,
+          questionContext: QuestionTutorContext?,
+          onTranscription: (String?, String?) -> Unit,
+        ): String {
+          aiCalled = true
+          return "gemini-3.8-live"
+        }
+
+        override suspend fun sendTextToVoiceSession(text: String) {}
+        override suspend fun stopVoiceConversation() {}
+      }
+
+      val aiVm = AiAssistantViewModel(repo, fakeAiService, fakeConnectivity)
+      val aiCollector = launch(Dispatchers.Unconfined) { aiVm.uiState.collect {} }
+      assertFalse(aiVm.uiState.value.isOnline)
+
+      // Attempt AI chat, voice, and game generation offline -> all blocked with warning
+      aiVm.sendTutorMessage("Ipaathag sa Kinaray-a")
+      waitUntil { aiVm.uiState.value.tutorError == OFFLINE_AI_WARNING }
+      assertEquals(OFFLINE_AI_WARNING, aiVm.uiState.value.tutorError)
+
+      aiVm.startVoiceConversation()
+      waitUntil { aiVm.uiState.value.liveVoiceState is LiveVoiceState.Error }
+      assertEquals(OFFLINE_AI_WARNING, (aiVm.uiState.value.liveVoiceState as LiveVoiceState.Error).message)
+
+      aiVm.generateGame("Matter", 3, TutorLanguage.TAGALOG, AiGameType.ARCADE_CATCHER)
+      waitUntil { aiVm.uiState.value.gameGeneratorState is GameGeneratorState.Error }
+      assertEquals(OFFLINE_AI_WARNING, (aiVm.uiState.value.gameGeneratorState as GameGeneratorState.Error).message)
+      assertFalse(aiCalled)
+
+      // Offline curriculum activity proceeds uninterrupted
+      val mainVm = MainViewModel(repo)
+      val mainCollector = launch(Dispatchers.Unconfined) { mainVm.uiState.collect {} }
+      waitUntil { !mainVm.uiState.value.isLoading }
+      mainVm.startLesson(sampleLesson(questionCount = 2))
+      mainVm.onSelectSingle(1)
+      mainVm.submitAnswer()
+      waitUntil { mainVm.sessionState.value?.feedback != null }
+      assertTrue(mainVm.sessionState.value!!.feedback!!.isCorrect)
+
+      aiCollector.cancel()
+      mainCollector.cancel()
+    } finally {
+      db.close()
+    }
+  }
+
+  @Test
+  fun `online AI tutor passes multilingual language and question context and logs generated game XP`() = runBlocking {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
+    try {
+      val repo = ScienceRepository(CurriculumLoader(context), db.progressDao())
+      repo.ensureInitialStats()
+      val fakeConnectivity = object : ConnectivityObserver {
+        private val state = MutableStateFlow(true)
+        override val isOnline: StateFlow<Boolean> = state
+        override fun checkOnlineNow(): Boolean = state.value
+      }
+
+      var capturedLang: TutorLanguage? = null
+      var capturedContext: QuestionTutorContext? = null
+      val fakeAiService = object : AiTutorService {
+        override fun streamTutorExplanation(
+          userMessage: String,
+          language: TutorLanguage,
+          questionContext: QuestionTutorContext?,
+          recentHistory: List<Pair<Boolean, String>>,
+        ): Flow<String> {
+          capturedLang = language
+          capturedContext = questionContext
+          return flowOf("Amo dya ang clue sa pamangkot...")
+        }
+
+        override suspend fun generateScienceGame(
+          topic: String,
+          gradeLevel: Int,
+          language: TutorLanguage,
+          gameType: AiGameType,
+        ): GeneratedScienceGame {
+          return GeneratedScienceGame(
+            title = "Volcano Comet Lab",
+            topic = topic,
+            gradeLevel = gradeLevel,
+            language = language,
+            gameType = gameType,
+            missionBrief = "Test mission",
+            rounds = listOf(
+              GameRoundItem("Sample?", listOf("A", "B", "C", "D"), 0, "Hint", "Explanation")
+            ),
+          )
+        }
+
+        override suspend fun startVoiceConversation(
+          language: TutorLanguage,
+          questionContext: QuestionTutorContext?,
+          onTranscription: (String?, String?) -> Unit,
+        ): String {
+          capturedLang = language
+          capturedContext = questionContext
+          return "gemini-3.8-live"
+        }
+
+        override suspend fun sendTextToVoiceSession(text: String) {}
+        override suspend fun stopVoiceConversation() {}
+      }
+
+      val aiVm = AiAssistantViewModel(repo, fakeAiService, fakeConnectivity)
+      val aiCollector = launch(Dispatchers.Unconfined) { aiVm.uiState.collect {} }
+
+      val q = sampleLesson().questions.first()
+      val qCtx = buildQuestionTutorContext(5, "Matter", "Mixtures", q)
+      aiVm.setLanguage(TutorLanguage.KINARAY_A)
+      aiVm.openTutor(qCtx)
+      aiVm.sendTutorMessage("Ipaathag sa Kinaray-a")
+      waitUntil { !aiVm.uiState.value.isSendingText && aiVm.uiState.value.messages.any { !it.isUser && it.text.contains("clue") } }
+
+      assertEquals(TutorLanguage.KINARAY_A, capturedLang)
+      assertEquals(q.id, capturedContext?.questionId)
+
+      aiVm.generateGame("Volcanoes", 6, TutorLanguage.HILIGAYNON, AiGameType.ARCADE_CATCHER)
+      waitUntil { aiVm.uiState.value.gameGeneratorState is GameGeneratorState.Ready }
+      val game = (aiVm.uiState.value.gameGeneratorState as GameGeneratorState.Ready).game
+      val learner = repo.observeLearnerStats().first()
+      aiVm.recordGeneratedGameCompletion(learner.id, game, correctCount = 5, totalCount = 6, xpEarned = 95)
+      waitUntil {
+        runBlocking {
+          repo.observeActivityLogs().first().isNotEmpty() &&
+            repo.observeLearnerStats().first().totalXp == 95
+        }
+      }
+      assertEquals(95, repo.observeLearnerStats().first().totalXp)
+
+      aiCollector.cancel()
     } finally {
       db.close()
     }

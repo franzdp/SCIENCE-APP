@@ -25,7 +25,9 @@ import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.HistoryEdu
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.model.ChallengeMode
 import com.example.ui.components.LearnerAvatarBadge
+import com.example.ui.components.OfflineAiWarningBanner
 import com.example.ui.theme.CoralError
 import com.example.ui.theme.LeafSecondary
 import com.example.ui.theme.SkyPrimary
@@ -57,8 +60,11 @@ import com.example.ui.viewmodel.AppUiState
 @Composable
 fun ChallengeScreen(
   uiState: AppUiState,
+  isOnline: Boolean,
   onStartChallenge: (ChallengeMode) -> Unit,
   onOpenLearnerSwitcher: () -> Unit,
+  onOpenAiGameMaker: () -> Unit,
+  onOpenAiVoiceTutor: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Box(
@@ -192,7 +198,89 @@ fun ChallengeScreen(
       }
 
       item {
-        Text("Practice by Activity Mode", style = MaterialTheme.typography.titleMedium)
+        if (!isOnline) {
+          OfflineAiWarningBanner(compact = false)
+        }
+      }
+
+      // AI Science Game Maker & Multilingual Voice Tutor Card
+      item {
+        Surface(
+          shape = RoundedCornerShape(22.dp),
+          color = VioletAccent.copy(alpha = 0.09f),
+          border = BorderStroke(
+            1.4.dp,
+            if (isOnline) VioletAccent.copy(alpha = 0.45f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+          ),
+          modifier = Modifier
+            .fillMaxWidth()
+            .testTag("ai_game_maker_card"),
+        ) {
+          Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+          ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = VioletAccent.copy(alpha = 0.18f),
+                modifier = Modifier.size(48.dp),
+              ) {
+                Box(contentAlignment = Alignment.Center) {
+                  Icon(Icons.Rounded.SportsEsports, contentDescription = null, tint = VioletAccent)
+                }
+              }
+              Spacer(Modifier.width(12.dp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text(
+                  text = "AI Science Game Maker",
+                  style = MaterialTheme.typography.titleMedium,
+                  fontWeight = FontWeight.Bold,
+                )
+                Text(
+                  text = if (isOnline) {
+                    "Generate Arcade, Memory Flip & Quest games in English, Tagalog, Hiligaynon, or Kinaray-a"
+                  } else {
+                    "Requires internet connectivity to generate games or talk with AI"
+                  },
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              }
+            }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+              Button(
+                onClick = onOpenAiGameMaker,
+                enabled = isOnline,
+                colors = ButtonDefaults.buttonColors(containerColor = VioletAccent, contentColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.weight(1f).height(48.dp).testTag("challenge_create_game_button"),
+              ) {
+                Icon(Icons.Rounded.SportsEsports, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Create Game", fontWeight = FontWeight.Bold)
+              }
+              Button(
+                onClick = onOpenAiVoiceTutor,
+                enabled = isOnline,
+                colors = ButtonDefaults.buttonColors(containerColor = SkyPrimary, contentColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.weight(1f).height(48.dp).testTag("challenge_voice_tutor_button"),
+              ) {
+                Icon(Icons.Rounded.Mic, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Talk to AI", fontWeight = FontWeight.Bold)
+              }
+            }
+          }
+        }
+      }
+
+      item {
+        Text("Practice by Activity Mode (Works Offline)", style = MaterialTheme.typography.titleMedium)
       }
 
       item {

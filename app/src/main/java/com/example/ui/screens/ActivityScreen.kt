@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material.icons.rounded.Star
@@ -60,25 +61,31 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.data.model.QuestionTutorContext
 import com.example.data.model.QuestionType
 import com.example.data.repository.LearnerReportSnapshot
+import com.example.ui.components.OfflineAiWarningBanner
 import com.example.ui.components.PdfReportDialog
 import com.example.ui.components.QuestionInteractionBody
 import com.example.ui.theme.CoralError
 import com.example.ui.theme.LeafSecondary
 import com.example.ui.theme.SkyPrimary
 import com.example.ui.theme.SunGold
+import com.example.ui.theme.VioletAccent
 import com.example.ui.viewmodel.ActivitySessionState
 import com.example.ui.viewmodel.AppUiState
 import com.example.ui.viewmodel.MainViewModel
+import com.example.ui.viewmodel.buildQuestionTutorContext
 
 @Composable
 fun ActivityScreen(
   session: ActivitySessionState,
   uiState: AppUiState,
+  isOnline: Boolean,
   ttsAutoRead: Boolean,
   onSpeakText: (String) -> Unit,
   onStopSpeech: () -> Unit,
+  onAskAiTutor: (QuestionTutorContext) -> Unit,
   onLoadAllSnapshots: suspend () -> List<LearnerReportSnapshot>,
   viewModel: MainViewModel,
 ) {
@@ -251,27 +258,77 @@ fun ActivityScreen(
                   )
                 }
               }
-              Surface(
-                onClick = { onSpeakText(curQ.prompt) },
-                shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-                modifier = Modifier.testTag("tts_speak_button"),
+              Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
               ) {
-                Row(
-                  modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                  verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                  onClick = {
+                    onStopSpeech()
+                    onAskAiTutor(
+                      buildQuestionTutorContext(
+                        grade = session.gradeLevel,
+                        lessonTitle = session.title,
+                        contentTopic = session.subtitle.ifBlank { session.title },
+                        question = curQ,
+                      )
+                    )
+                  },
+                  enabled = isOnline,
+                  shape = RoundedCornerShape(50),
+                  color = if (isOnline) VioletAccent.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant,
+                  border = BorderStroke(
+                    1.dp,
+                    if (isOnline) VioletAccent.copy(alpha = 0.45f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                  ),
+                  modifier = Modifier.testTag("ask_ai_question_button"),
                 ) {
-                  Icon(
-                    Icons.Rounded.VolumeUp,
-                    contentDescription = "Read aloud",
-                    tint = SkyPrimary,
-                    modifier = Modifier.size(18.dp),
-                  )
-                  Spacer(Modifier.width(4.dp))
-                  Text("Read Aloud", style = MaterialTheme.typography.labelMedium, color = SkyPrimary)
+                  Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                  ) {
+                    Icon(
+                      Icons.Rounded.Mic,
+                      contentDescription = "Ask AI Tutor",
+                      tint = if (isOnline) VioletAccent else MaterialTheme.colorScheme.onSurfaceVariant,
+                      modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                      text = if (isOnline) "Ask AI" else "AI Offline",
+                      style = MaterialTheme.typography.labelMedium,
+                      color = if (isOnline) VioletAccent else MaterialTheme.colorScheme.onSurfaceVariant,
+                      fontWeight = FontWeight.Bold,
+                    )
+                  }
+                }
+
+                Surface(
+                  onClick = { onSpeakText(curQ.prompt) },
+                  shape = RoundedCornerShape(50),
+                  color = MaterialTheme.colorScheme.surface,
+                  border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+                  modifier = Modifier.testTag("tts_speak_button"),
+                ) {
+                  Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                  ) {
+                    Icon(
+                      Icons.Rounded.VolumeUp,
+                      contentDescription = "Read aloud",
+                      tint = SkyPrimary,
+                      modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("Read", style = MaterialTheme.typography.labelMedium, color = SkyPrimary)
+                  }
                 }
               }
+            }
+
+            if (!isOnline) {
+              OfflineAiWarningBanner(compact = true)
             }
 
             // Question Prompt Card

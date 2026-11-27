@@ -50,7 +50,7 @@ enum class PdfReportScope(
   ),
   ALL_GRADES(
     title = "All Grades (G3–G6) Activities",
-    subtitle = "Complete learner portfolio across all 52 Science activities",
+    subtitle = "Complete learner portfolio across all 60 competency-based Science activities",
   ),
   ALL_LEARNERS(
     title = "All Learners Class Summary",
@@ -111,7 +111,7 @@ object ScienceReportPdfGenerator {
       PdfReportScope.ALL_GRADES -> "AllGrades"
       PdfReportScope.ALL_LEARNERS -> "ClassSummary"
     }
-    return "ARAL_Science_Report_${safeName}_${scopeSuffix}_$dateStamp.pdf"
+    return "Science_Competency_Report_${safeName}_${scopeSuffix}_$dateStamp.pdf"
   }
 
   fun generatePdfToCache(context: Context, request: SciencePdfReportRequest): File {
@@ -147,10 +147,10 @@ object ScienceReportPdfGenerator {
     val intent = Intent(Intent.ACTION_SEND).apply {
       type = "application/pdf"
       putExtra(Intent.EXTRA_STREAM, uri)
-      putExtra(Intent.EXTRA_SUBJECT, "ARAL Science Progress Report - SCIENTISTS of Bagacay ES")
+      putExtra(Intent.EXTRA_SUBJECT, "Science Competency Progress Report - SCIENTISTS of Bagacay ES")
       addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    context.startActivity(Intent.createChooser(intent, "Share ARAL Science PDF Report"))
+    context.startActivity(Intent.createChooser(intent, "Share Science Competency PDF Report"))
   }
 
   fun openPdf(context: Context, pdfFile: File) {
@@ -159,7 +159,7 @@ object ScienceReportPdfGenerator {
       setDataAndType(uri, "application/pdf")
       addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    val chooser = Intent.createChooser(viewIntent, "Open ARAL Science PDF Report")
+    val chooser = Intent.createChooser(viewIntent, "Open Science Competency PDF Report")
     try {
       context.startActivity(chooser)
     } catch (_: Exception) {
@@ -323,7 +323,7 @@ object ScienceReportPdfGenerator {
       val textLeft = MARGIN_X + 74f
       canvas.drawText("SCIENTISTS of Bagacay ES", textLeft, y + 23f, titlePaint)
       canvas.drawText(
-        "ARAL Science Activity Progress Report • Bagacay Elementary School",
+        "Competency-Based Science Progress Report • Bagacay Elementary School",
         textLeft,
         y + 38f,
         brandAccentPaint,
@@ -342,8 +342,8 @@ object ScienceReportPdfGenerator {
       )
 
       // Gold tag badge on top right
-      val pillText = "ARAL REPORT"
-      val pillWidth = 86f
+      val pillText = "COMPETENCY"
+      val pillWidth = 92f
       val pillRect = RectF(MARGIN_X + CONTENT_WIDTH - pillWidth - 10f, y + 10f, MARGIN_X + CONTENT_WIDTH - 10f, y + 28f)
       fillPaint.color = COLOR_GOLD
       canvas.drawRoundRect(pillRect, 6f, 6f, fillPaint)
@@ -362,7 +362,7 @@ object ScienceReportPdfGenerator {
 
     private fun drawContinuationHeader() {
       val headerTitle = if (request.scope == PdfReportScope.ALL_LEARNERS) {
-        "SCIENTISTS of Bagacay ES — All Learners ARAL Science Report"
+        "SCIENTISTS of Bagacay ES — All Learners Competency Report"
       } else {
         "SCIENTISTS of Bagacay ES — ${request.activeLearner.learnerName} (Grade ${request.activeLearner.selectedGrade})"
       }
@@ -471,7 +471,7 @@ object ScienceReportPdfGenerator {
 
       // Topics with Difficulties
       drawSectionHeader(
-        "4. Topics with Difficulties & Intervention Needed",
+        "4. Topics with Difficulties & Competency Support",
         "${request.mistakes.size} Missed Item(s) after 2 Tries",
       )
       drawInterventionSection(lessons, request.progressMap, request.inProgressMap, request.mistakes)
@@ -510,7 +510,7 @@ object ScienceReportPdfGenerator {
           "ACTIVITIES DONE" to "$completedCount / $totalLessons",
           "MASTERY STARS" to "$totalStars / $maxStars ★",
           "OVERALL ACCURACY" to "$accuracy% (${stats.totalCorrect}/${stats.totalAnswered})",
-          "FOR INTERVENTION" to "$pendingMistakes missed | $scopeLabel",
+          "FOR COMPETENCY REVIEW" to "$pendingMistakes missed | $scopeLabel",
         ),
       )
 

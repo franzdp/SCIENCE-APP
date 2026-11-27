@@ -22,7 +22,7 @@ class TextToSpeechHelper(context: Context) {
   fun speak(text: String) {
     if (!isReady) return
     val cleaned = text.replace("______", "blank").replace("→", " to ")
-    tts?.speak(cleaned, TextToSpeech.QUEUE_FLUSH, null, "aral_science_tts")
+    tts?.speak(cleaned, TextToSpeech.QUEUE_FLUSH, null, "bagacay_science_tts")
   }
 
   fun stop() {

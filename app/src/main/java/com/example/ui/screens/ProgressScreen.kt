@@ -221,7 +221,7 @@ fun ProgressScreen(
         }
       }
 
-      // ARAL PDF Progress Report Card
+      // Competency PDF Progress Report Card
       item {
         Surface(
           shape = RoundedCornerShape(22.dp),
@@ -252,12 +252,12 @@ fun ProgressScreen(
               Spacer(Modifier.width(12.dp))
               Column(modifier = Modifier.weight(1f)) {
                 Text(
-                  text = "ARAL PDF Progress Report",
+                  text = "Competency PDF Progress Report",
                   style = MaterialTheme.typography.titleMedium,
                   fontWeight = FontWeight.Bold,
                 )
                 Text(
-                  text = "Export activity-by-activity scores, mastery levels & intervention summary",
+                  text = "Export activity-by-activity scores, mastery levels & competency difficulty summary",
                   style = MaterialTheme.typography.bodySmall,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

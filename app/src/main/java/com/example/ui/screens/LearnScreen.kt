@@ -28,10 +28,12 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Button
@@ -65,6 +67,7 @@ import com.example.data.local.LessonInProgressEntity
 import com.example.data.local.LessonProgressEntity
 import com.example.data.model.ScienceLesson
 import com.example.ui.components.LearnerAvatarBadge
+import com.example.ui.components.OfflineAiWarningBanner
 import com.example.ui.theme.CoralError
 import com.example.ui.theme.LeafSecondary
 import com.example.ui.theme.SkyPrimary
@@ -76,6 +79,7 @@ import com.example.ui.viewmodel.AppUiState
 @Composable
 fun LearnScreen(
   uiState: AppUiState,
+  isOnline: Boolean,
   onSelectGrade: (Int) -> Unit,
   onSelectTerm: (Int?) -> Unit,
   onSearchChange: (String) -> Unit,
@@ -83,6 +87,8 @@ fun LearnScreen(
   onOpenLearnerSwitcher: () -> Unit,
   onOpenAddLearner: () -> Unit,
   onOpenProgressReport: () -> Unit,
+  onOpenAiVoiceTutor: () -> Unit,
+  onOpenAiGameMaker: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val gradeLessons = uiState.allLessons.filter { it.grade == uiState.selectedGrade }
@@ -250,6 +256,54 @@ fun LearnScreen(
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
           )
+        }
+      }
+
+      // AI Voice Tutor & AI Game Maker Quick Actions (Disabled with warning if offline)
+      item {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          if (!isOnline) {
+            OfflineAiWarningBanner(compact = true)
+          }
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+          ) {
+            Button(
+              onClick = onOpenAiVoiceTutor,
+              enabled = isOnline,
+              colors = ButtonDefaults.buttonColors(
+                containerColor = VioletAccent,
+                contentColor = Color.White,
+              ),
+              shape = RoundedCornerShape(14.dp),
+              modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .testTag("main_ai_voice_button"),
+            ) {
+              Icon(Icons.Rounded.Mic, contentDescription = null, modifier = Modifier.size(18.dp))
+              Spacer(Modifier.width(6.dp))
+              Text("Talk to AI", maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
+            }
+            OutlinedButton(
+              onClick = onOpenAiGameMaker,
+              enabled = isOnline,
+              shape = RoundedCornerShape(14.dp),
+              border = BorderStroke(
+                1.2.dp,
+                if (isOnline) SkyPrimary.copy(alpha = 0.55f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+              ),
+              modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .testTag("main_ai_game_button"),
+            ) {
+              Icon(Icons.Rounded.SportsEsports, contentDescription = null, modifier = Modifier.size(18.dp))
+              Spacer(Modifier.width(6.dp))
+              Text("Create Game", maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
+            }
+          }
         }
       }
 

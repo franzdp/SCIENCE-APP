@@ -22,7 +22,7 @@ val PlusJakartaFontFamily = FontFamily(
   Font(R.font.plus_jakarta_sans, FontWeight.Bold),
 )
 
-val AralTypography = Typography(
+val ScienceTypography = Typography(
   displaySmall = TextStyle(
     fontFamily = FredokaFontFamily,
     fontWeight = FontWeight.Bold,

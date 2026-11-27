@@ -50,18 +50,27 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.data.local.AppDatabase
 import com.example.data.local.CurriculumLoader
+import com.example.data.model.GameGeneratorState
+import com.example.data.repository.AiScienceRepository
 import com.example.data.repository.ScienceRepository
 import com.example.ui.components.AddLearnerDialog
+import com.example.ui.components.AiGameCreatorDialog
+import com.example.ui.components.AiTutorSheet
 import com.example.ui.components.LearnerSwitcherDialog
 import com.example.ui.components.PdfReportDialog
 import com.example.ui.screens.ActivityScreen
+import com.example.ui.screens.AiGameScreen
 import com.example.ui.screens.ChallengeScreen
 import com.example.ui.screens.LearnScreen
 import com.example.ui.screens.ProgressScreen
-import com.example.ui.theme.AralScienceTheme
+import com.example.ui.theme.BagacayScienceTheme
+import com.example.ui.viewmodel.AiAssistantViewModel
+import com.example.ui.viewmodel.AiAssistantViewModelFactory
 import com.example.ui.viewmodel.MainViewModel
 import com.example.ui.viewmodel.MainViewModelFactory
+import com.example.util.NetworkConnectivityMonitor
 import com.example.util.TextToSpeechHelper
+import com.example.util.configureAppCheck
 
 private enum class TopTab(
   val route: String,
@@ -77,23 +86,34 @@ private enum class TopTab(
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    // Configure Firebase App Check before rendering Compose UI or creating ViewModels.
+    configureAppCheck(this, intent)
     enableEdgeToEdge()
+
     val db = AppDatabase.getInstance(applicationContext)
     val repo = ScienceRepository(CurriculumLoader(applicationContext), db.progressDao())
     val factory = MainViewModelFactory(repo)
+    val connectivityMonitor = NetworkConnectivityMonitor(applicationContext)
+    val aiRepository = AiScienceRepository(connectivityMonitor)
+    val aiFactory = AiAssistantViewModelFactory(repo, aiRepository, connectivityMonitor)
 
     setContent {
-      AralScienceTheme {
-        AralScienceApp(factory = factory)
+      BagacayScienceTheme {
+        BagacayScienceApp(factory = factory, aiFactory = aiFactory)
       }
     }
   }
 }
 
 @Composable
-fun AralScienceApp(factory: MainViewModelFactory) {
+fun BagacayScienceApp(
+  factory: MainViewModelFactory,
+  aiFactory: AiAssistantViewModelFactory,
+) {
   val viewModel: MainViewModel = viewModel(factory = factory)
+  val aiViewModel: AiAssistantViewModel = viewModel(factory = aiFactory)
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  val aiUiState by aiViewModel.uiState.collectAsStateWithLifecycle()
   val session by viewModel.sessionState.collectAsStateWithLifecycle()
 
   val context = LocalContext.current
@@ -105,6 +125,8 @@ fun AralScienceApp(factory: MainViewModelFactory) {
   var showLearnerSwitcher by remember { mutableStateOf(false) }
   var showAddLearner by remember { mutableStateOf(false) }
   var showMainPdfReport by remember { mutableStateOf(false) }
+  var showAiTutorSheet by remember { mutableStateOf(false) }
+  var showAiGameCreator by remember { mutableStateOf(false) }
 
   if (uiState.isLoading) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -117,17 +139,53 @@ fun AralScienceApp(factory: MainViewModelFactory) {
     return
   }
 
+  val activeGeneratedGame = (aiUiState.gameGeneratorState as? GameGeneratorState.Ready)?.game
+  if (activeGeneratedGame != null) {
+    AiGameScreen(
+      game = activeGeneratedGame,
+      onRecordResult = { correct, total, xp ->
+        aiViewModel.recordGeneratedGameCompletion(
+          learnerId = uiState.stats.id,
+          game = activeGeneratedGame,
+          correctCount = correct,
+          totalCount = total,
+          xpEarned = xp,
+        )
+      },
+      onExit = {
+        showAiGameCreator = false
+        aiViewModel.clearGeneratedGame()
+      },
+    )
+    return
+  }
+
   val activeSession = session
   if (activeSession != null) {
     ActivityScreen(
       session = activeSession,
       uiState = uiState,
+      isOnline = aiUiState.isOnline,
       ttsAutoRead = uiState.stats.ttsAutoRead,
       onSpeakText = { ttsHelper.speak(it) },
       onStopSpeech = { ttsHelper.stop() },
+      onAskAiTutor = { qCtx ->
+        aiViewModel.openTutor(qCtx)
+        showAiTutorSheet = true
+      },
       onLoadAllSnapshots = viewModel::loadAllLearnersReportSnapshots,
       viewModel = viewModel,
     )
+    if (showAiTutorSheet) {
+      AiTutorSheet(
+        uiState = aiUiState,
+        onSelectLanguage = aiViewModel::setLanguage,
+        onSendMessage = aiViewModel::sendTutorMessage,
+        onStartVoice = aiViewModel::startVoiceConversation,
+        onStopVoice = aiViewModel::stopVoiceConversation,
+        onDismiss = { showAiTutorSheet = false },
+      )
+    }
     return
   }
 
@@ -211,6 +269,7 @@ fun AralScienceApp(factory: MainViewModelFactory) {
           composable(TopTab.LEARN.route) {
             LearnScreen(
               uiState = uiState,
+              isOnline = aiUiState.isOnline,
               onSelectGrade = viewModel::selectGrade,
               onSelectTerm = viewModel::selectTerm,
               onSearchChange = viewModel::updateSearchQuery,
@@ -218,13 +277,30 @@ fun AralScienceApp(factory: MainViewModelFactory) {
               onOpenLearnerSwitcher = { showLearnerSwitcher = true },
               onOpenAddLearner = { showAddLearner = true },
               onOpenProgressReport = { showMainPdfReport = true },
+              onOpenAiVoiceTutor = {
+                aiViewModel.openTutor(null)
+                showAiTutorSheet = true
+              },
+              onOpenAiGameMaker = {
+                aiViewModel.refreshConnectivity()
+                showAiGameCreator = true
+              },
             )
           }
           composable(TopTab.CHALLENGE.route) {
             ChallengeScreen(
               uiState = uiState,
+              isOnline = aiUiState.isOnline,
               onStartChallenge = viewModel::startChallenge,
               onOpenLearnerSwitcher = { showLearnerSwitcher = true },
+              onOpenAiGameMaker = {
+                aiViewModel.refreshConnectivity()
+                showAiGameCreator = true
+              },
+              onOpenAiVoiceTutor = {
+                aiViewModel.openTutor(null)
+                showAiTutorSheet = true
+              },
             )
           }
           composable(TopTab.PROGRESS.route) {
@@ -268,6 +344,34 @@ fun AralScienceApp(factory: MainViewModelFactory) {
       uiState = uiState,
       onLoadAllSnapshots = viewModel::loadAllLearnersReportSnapshots,
       onDismiss = { showMainPdfReport = false },
+    )
+  }
+
+  if (showAiTutorSheet) {
+    AiTutorSheet(
+      uiState = aiUiState,
+      onSelectLanguage = aiViewModel::setLanguage,
+      onSendMessage = aiViewModel::sendTutorMessage,
+      onStartVoice = aiViewModel::startVoiceConversation,
+      onStopVoice = aiViewModel::stopVoiceConversation,
+      onDismiss = { showAiTutorSheet = false },
+    )
+  }
+
+  if (showAiGameCreator) {
+    AiGameCreatorDialog(
+      isOnline = aiUiState.isOnline,
+      defaultGrade = uiState.selectedGrade,
+      generatorState = aiUiState.gameGeneratorState,
+      onGenerate = { topic, grade, lang, mode ->
+        aiViewModel.generateGame(topic, grade, lang, mode)
+      },
+      onDismiss = {
+        showAiGameCreator = false
+        if (aiUiState.gameGeneratorState !is GameGeneratorState.Ready) {
+          aiViewModel.clearGeneratedGame()
+        }
+      },
     )
   }
 }

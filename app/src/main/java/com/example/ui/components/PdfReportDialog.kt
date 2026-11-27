@@ -108,7 +108,7 @@ fun PdfReportDialog(
       }
       isGenerating = false
       if (result.isSuccess) {
-        Toast.makeText(context, "ARAL PDF report saved!", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Competency PDF report saved!", Toast.LENGTH_LONG).show()
       } else {
         Toast.makeText(
           context,
@@ -145,7 +145,7 @@ fun PdfReportDialog(
         )
         Spacer(Modifier.width(8.dp))
         Column {
-          Text("ARAL PDF Progress Report", style = MaterialTheme.typography.titleLarge)
+          Text("Competency PDF Report", style = MaterialTheme.typography.titleLarge)
           Text(
             text = "SCIENTISTS of Bagacay ES",
             style = MaterialTheme.typography.labelMedium,
@@ -219,7 +219,7 @@ fun PdfReportDialog(
             verticalArrangement = Arrangement.spacedBy(4.dp),
           ) {
             Text(
-              "Included in ARAL Format PDF:",
+              "Included in Competency Report PDF:",
               style = MaterialTheme.typography.labelLarge,
               fontWeight = FontWeight.Bold,
             )
@@ -255,7 +255,7 @@ fun PdfReportDialog(
           ) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.5.dp)
             Spacer(Modifier.width(10.dp))
-            Text("Generating ARAL PDF report...", style = MaterialTheme.typography.bodySmall)
+            Text("Generating Competency PDF report...", style = MaterialTheme.typography.bodySmall)
           }
         }
 
@@ -380,7 +380,7 @@ fun PdfReportDialog(
                   ScienceReportPdfGenerator.printPdf(
                     context = context,
                     cachedFile = file,
-                    jobName = "ARAL Science Report - ${req.activeLearner.learnerName}",
+                    jobName = "Science Competency Report - ${req.activeLearner.learnerName}",
                     fileName = ScienceReportPdfGenerator.suggestedFileName(req),
                   )
                 }.onFailure { err ->

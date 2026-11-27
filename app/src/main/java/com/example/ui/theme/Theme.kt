@@ -62,7 +62,7 @@ private val DarkColorScheme = darkColorScheme(
   outline = DarkOutline,
 )
 
-val AralShapes = Shapes(
+val ScienceShapes = Shapes(
   small = RoundedCornerShape(12.dp),
   medium = RoundedCornerShape(18.dp),
   large = RoundedCornerShape(24.dp),
@@ -70,15 +70,15 @@ val AralShapes = Shapes(
 )
 
 @Composable
-fun AralScienceTheme(
+fun BagacayScienceTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
   content: @Composable () -> Unit,
 ) {
   val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
   MaterialTheme(
     colorScheme = colorScheme,
-    typography = AralTypography,
-    shapes = AralShapes,
+    typography = ScienceTypography,
+    shapes = ScienceShapes,
     content = content,
   )
 }
