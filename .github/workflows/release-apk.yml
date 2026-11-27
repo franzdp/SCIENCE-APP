@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: Run Unit & Robolectric Tests
-        run: gradle :app:testDebugUnitTest --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx2560m -XX:MaxMetaspaceSize=768m" -Dorg.gradle.workers.max=2
+        run: gradle :app:testDebugUnitTest --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Djava.awt.headless=true" -Dorg.gradle.workers.max=2
 
       - name: Prepare Release Keystore
         env:
@@ -98,10 +98,10 @@ jobs:
           fi
 
       - name: Build Release APK
-        run: gradle :app:assembleRelease --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx2560m -XX:MaxMetaspaceSize=768m" -Dorg.gradle.workers.max=2 --stacktrace
+        run: gradle :app:assembleRelease --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Djava.awt.headless=true" -Dorg.gradle.workers.max=2 --stacktrace
 
       - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx2560m -XX:MaxMetaspaceSize=768m" -Dorg.gradle.workers.max=2 --stacktrace
+        run: gradle :app:assembleDebug --no-daemon --no-configuration-cache -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Djava.awt.headless=true" -Dorg.gradle.workers.max=2 --stacktrace
 
       - name: Collect Output APKs
         run: |
