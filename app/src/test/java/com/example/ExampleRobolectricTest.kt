@@ -598,7 +598,7 @@ class ExampleRobolectricTest {
           onTranscription: (String?, String?) -> Unit,
         ): String {
           aiCalled = true
-          return "gemini-3.8-live"
+          return "gemini-3.1-flash-live-preview"
         }
 
         override suspend fun sendTextToVoiceSession(text: String) {}
@@ -695,7 +695,7 @@ class ExampleRobolectricTest {
         ): String {
           capturedLang = language
           capturedContext = questionContext
-          return "gemini-3.8-live"
+          return "gemini-3.1-flash-live-preview"
         }
 
         override suspend fun sendTextToVoiceSession(text: String) {}
@@ -740,6 +740,10 @@ class ExampleRobolectricTest {
     val app = ensureFirebaseAppInitialized(context)
     assertNotNull(app)
     assertTrue(FirebaseApp.getApps(context).isNotEmpty())
+    val recaptchaId = context.resources.getIdentifier("recaptcha_site_key", "string", context.packageName)
+    assertTrue("recaptcha_site_key resource must exist for release App Check", recaptchaId != 0)
+    assertTrue(context.getString(recaptchaId).isNotBlank())
+    assertNull(com.example.util.appCheckConfigIssue(context))
     configureAppCheck(context, null)
     val ai = Firebase.ai(app = app!!, backend = GenerativeBackend.googleAI())
     assertNotNull(ai)

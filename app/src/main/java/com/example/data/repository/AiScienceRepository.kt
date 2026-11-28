@@ -36,9 +36,9 @@ import org.json.JSONObject
 
 private const val TAG = "AiScienceRepository"
 private const val GENERAL_MODEL = "gemini-3.8-flash"
-private const val PRIMARY_LIVE_MODEL = "gemini-3.8-live"
-private const val FALLBACK_LIVE_MODEL_3X = "gemini-3.1-flash-live-preview"
+private const val PRIMARY_LIVE_MODEL = "gemini-3.1-flash-live-preview"
 private const val FALLBACK_LIVE_MODEL_25 = "gemini-2.5-flash-native-audio-preview-12-2025"
+private const val FALLBACK_LIVE_MODEL_25_OLD = "gemini-2.5-flash-native-audio-preview-09-2025"
 
 const val OFFLINE_AI_WARNING =
   "Internet connectivity is required to talk with the AI Tutor or generate Science games. You can continue all offline lessons and activities!"
@@ -202,7 +202,7 @@ class AiScienceRepository(
       throw e
     } catch (e: Exception) {
       Log.e(TAG, "Tutor streaming failed", e)
-      throw e
+      throw enhanceAiException(e)
     }
   }
 
@@ -315,7 +315,7 @@ class AiScienceRepository(
       throw e
     } catch (e: Exception) {
       Log.e(TAG, "Failed to generate Science game", e)
-      throw e
+      throw enhanceAiException(e)
     }
   }
 
@@ -337,25 +337,26 @@ class AiScienceRepository(
 
     val candidates = listOf(
       PRIMARY_LIVE_MODEL,
-      FALLBACK_LIVE_MODEL_3X,
       FALLBACK_LIVE_MODEL_25,
+      FALLBACK_LIVE_MODEL_25_OLD,
     )
 
-    var lastError: Throwable? = null
+    var lastError: Exception? = null
     for (modelName in candidates) {
+      var session: LiveSession? = null
       try {
         val liveModel = aiClient().liveModel(
           modelName = modelName,
           generationConfig = liveGenerationConfig {
             responseModality = ResponseModality.AUDIO
-            speechConfig = SpeechConfig(voice = Voice("AOEDE"))
+            speechConfig = SpeechConfig(voice = Voice("Aoede"))
             inputAudioTranscription = AudioTranscriptionConfig()
             outputAudioTranscription = AudioTranscriptionConfig()
           },
           systemInstruction = systemInstructionContent,
         )
 
-        val session = withTimeout(30_000L) {
+        session = withTimeout(30_000L) {
           liveModel.connect()
         }
 
@@ -382,25 +383,45 @@ class AiScienceRepository(
         }
         return modelName
       } catch (e: CancellationException) {
+        runCatching { session?.close() }
         throw e
       } catch (e: Exception) {
+        runCatching { session?.close() }
+        activeLiveSession = null
         lastError = e
-        Log.w(TAG, "Live API connection failed for $modelName: ${e.message}")
+        Log.w(TAG, "Live API connection failed for $modelName: ${e.message}", e)
         val msg = (e.message ?: "").lowercase()
-        val isModelLookupIssue =
-          msg.contains("not found") ||
-            msg.contains("not_found") ||
-            msg.contains("unsupported") ||
-            msg.contains("invalid argument") ||
-            msg.contains("model")
-        if (!isModelLookupIssue || modelName == candidates.last()) {
+        val isAuthOrAppCheckFatal =
+          msg.contains("app check") ||
+            msg.contains("403") ||
+            msg.contains("permission")
+        if (isAuthOrAppCheckFatal || modelName == candidates.last()) {
           Log.e(TAG, "Aborting Live API connection", e)
-          throw e
+          throw enhanceAiException(e)
         }
       }
     }
 
-    throw lastError ?: IllegalStateException("Unable to start live voice conversation.")
+    throw enhanceAiException(lastError ?: IllegalStateException("Unable to start live voice conversation."))
+  }
+
+  private fun enhanceAiException(e: Exception): Exception {
+    val msg = e.message.orEmpty()
+    val configIssue = com.example.util.appCheckConfigIssue(appContext)
+    if (msg.contains("app check", ignoreCase = true) || msg.contains("403") || configIssue != null) {
+      val detail = listOfNotNull(msg.takeIf { it.isNotBlank() }, configIssue).joinToString(" | ")
+      return IllegalStateException(
+        "Firebase App Check rejected this build ($detail). For a sideloaded release APK, verify app/src/main/res/values/firebase_applet_config.xml is included and register reCAPTCHA Enterprise under App Check in Firebase Console for com.aistudio.aralscience.k7m4px (or test the AI Studio debug preview).",
+        e,
+      )
+    }
+    if (msg.contains("closed by the server", ignoreCase = true)) {
+      return IllegalStateException(
+        "Live voice channel was closed by the server ($msg). Check internet connectivity and ensure Firebase App Check (reCAPTCHA Enterprise for release APK) is enabled for this app.",
+        e,
+      )
+    }
+    return e
   }
 
   override suspend fun sendTextToVoiceSession(text: String) {

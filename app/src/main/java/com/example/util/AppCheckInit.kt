@@ -98,22 +98,31 @@ fun configureAppCheck(context: Context, intent: Intent?) {
       )
       Log.d(TAG, "DebugAppCheckProviderFactory installed.")
     } else {
-      val resId = appContext.resources.getIdentifier(RECAPTCHA_SITE_KEY_RES, "string", appContext.packageName)
-      if (resId != 0) {
-        val siteKey = appContext.getString(resId)
-        if (siteKey.isNotBlank()) {
-          FirebaseAppCheck.getInstance(firebaseApp).installAppCheckProviderFactory(
-            RecaptchaAppCheckProviderFactory.getInstance(siteKey),
-          )
-          Log.d(TAG, "RecaptchaAppCheckProviderFactory installed.")
-        } else {
-          Log.e(TAG, "recaptcha_site_key resource string is blank.")
-        }
+      val siteKey = readStringResource(appContext, RECAPTCHA_SITE_KEY_RES)
+      if (!siteKey.isNullOrBlank()) {
+        FirebaseAppCheck.getInstance(firebaseApp).installAppCheckProviderFactory(
+          RecaptchaAppCheckProviderFactory.getInstance(siteKey),
+        )
+        Log.d(TAG, "RecaptchaAppCheckProviderFactory installed.")
       } else {
-        Log.e(TAG, "recaptcha_site_key string resource not found in package.")
+        Log.e(TAG, "recaptcha_site_key string resource not found or blank in package.")
       }
     }
   } catch (e: Exception) {
     Log.e(TAG, "Failed to initialize Firebase App Check", e)
   }
+}
+
+fun appCheckConfigIssue(context: Context): String? {
+  val appContext = context.applicationContext ?: context
+  if (ensureFirebaseAppInitialized(appContext) == null) {
+    return "FirebaseApp is not initialized (missing google-services.json values)."
+  }
+  if (!BuildConfig.DEBUG) {
+    val siteKey = readStringResource(appContext, RECAPTCHA_SITE_KEY_RES)
+    if (siteKey.isNullOrBlank()) {
+      return "recaptcha_site_key is missing in this release build."
+    }
+  }
+  return null
 }
