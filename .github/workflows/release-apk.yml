@@ -126,7 +126,7 @@ jobs:
           ls -lh build-apks/
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: scientists-of-bagacay-es-release-apk
           path: build-apks/scientists-of-bagacay-es-release.apk
